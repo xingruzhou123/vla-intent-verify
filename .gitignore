@@ -1,0 +1,6 @@
+data/
+results/
+third_party/
+*.pt
+*.npy
+*.h5
