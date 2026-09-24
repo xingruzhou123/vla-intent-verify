@@ -19,7 +19,7 @@
 | Environment on RTX 5080 | 🟡 venv + PyTorch cu128 verified on sm_120 (2026-09-24); π0/LIBERO not yet installed |
 | π0 + LIBERO benign reproduction | ⬜ |
 | Activation hooks (layers × flow steps) | ⬜ |
-| RedVLA / HazardArena code availability check | ⬜ |
+| RedVLA / HazardArena code availability check | 🟡 RedVLA: no code/assets released as of 2026-09-24 (page has dead Code button); HazardArena not yet checked |
 | Intent-divergence scenes | ⬜ |
 | Episode collection (target 300–500) | ⬜ |
 | Intent readers (B2, B3, B4, latent, oracle) | ⬜ |
@@ -49,8 +49,8 @@
 ## Next actions (Week 1)
 
 1. ~~Set up CUDA ≥ 12.8 + PyTorch with Blackwell support; confirm `torch.cuda` works on the 5080.~~ ✅ 2026-09-24 (see Week 1 log)
-2. Install a PyTorch π0 implementation (openpi PyTorch or LeRobot) and LIBERO; headless MuJoCo rendering.
-3. Identify and download a LIBERO-fine-tuned π0 checkpoint; record source and licence in `models/checkpoints.md`.
+2. Install a PyTorch π0 implementation (openpi PyTorch or LeRobot) and LIBERO; headless MuJoCo rendering. → **decided: LeRobot** (see `notes/week1_pi0_options.md`); install pending go-ahead
+3. Identify and download a LIBERO-fine-tuned π0 checkpoint; record source and licence in `models/checkpoints.md`. → candidates identified: `lerobot/pi05_libero_finetuned_v044`, `lerobot/pi0_libero_finetuned_v044`; download pending
 4. Run 2–3 benign LIBERO tasks; compare success with published numbers.
 5. Implement activation hooks; measure per-call latency and dump size with pooling.
 6. Check RedVLA and HazardArena repositories (code, assets, checkpoints, licence); pick the Month-1 environment.
@@ -59,8 +59,8 @@
 
 ## Open questions
 
-- Which π0 LIBERO checkpoints are actually public, and do they match those used by RedVLA?
-- Is SimpleVLA-Guard code released, or must it be re-implemented from the appendix?
+- ~~Which π0 LIBERO checkpoints are actually public, and do they match those used by RedVLA?~~ Answered 2026-09-24: PI hosts only `pi05_libero`; LeRobot hosts π0 and π0.5 LIBERO conversions/fine-tunes. RedVLA cites `huggingface.co/physical-intelligence/` for one unified checkpoint per model; exact ids not named.
+- ~~Is SimpleVLA-Guard code released?~~ Not as of 2026-09-24 → re-implement from appendix E (details captured in `notes/week1_pi0_options.md`).
 - Can LIBERO scenes express "hazard stacked on target" and "target absent" without new assets?
 - Where do verb labels become reliable enough to add (pour vs. place)?
 - Which evidence retriever for Month 2: open-vocabulary detector, targeted VLM query, or both?
@@ -89,3 +89,9 @@ _None blocking._ Watch item: system `nvcc` is CUDA 12.6, which cannot target sm_
   - bf16 matmul 2048² : max rel. error vs fp32 CPU reference 0.0021 (expected for bf16); ~0.20 ms/call ≈ 86 TFLOP/s. cuDNN bf16 conv2d OK.
   - Note: ~0.7 GB of the 16 GB is held by the desktop (Xorg/GNOME); budget ~15 GB usable for π0 inference.
 - Next: item 2 (π0 PyTorch implementation + LIBERO + headless MuJoCo). Stopped here for review before installing anything further.
+- **Items 2–3 research done (no install yet)** — full comparison in `notes/week1_pi0_options.md`.
+  - Cloned `third_party/openpi` (215abfb) and `third_party/lerobot` (e624f3f) for inspection only.
+  - openpi PyTorch port: hard-pins `torch==2.7.1` (no sm_120 wheel), hard JAX/flax/orbax deps, transformers 4.53.2 monkey-patch, no hosted fine-tuned π0 LIBERO checkpoint (only π0.5, JAX format). Rejected.
+  - LeRobot: torch `>=2.7,<2.12` from the cu128 index (lock already at 2.11.0+cu128), no JAX, `[pi,libero]` extras, in-process LIBERO via `hf-libero`, π0 and π0.5 LIBERO checkpoints on HF, same `action_out_proj` pre-velocity tensor and hookable 18-layer expert. **Recommended.** Cost: needs Python ≥ 3.12 → recreate `.venv` (uv 3.12.12 available).
+  - RedVLA: Table 11 → one unified checkpoint per π model from PI; chunk 50, replan 10; SimpleVLA-Guard appendix details recorded. No code/assets released yet (CC BY-NC 4.0 promised).
+  - Decision: primary checkpoint `lerobot/pi05_libero_finetuned_v044` (documented 97.5% avg), secondary `lerobot/pi0_libero_finetuned_v044`. Stopped before installing.
