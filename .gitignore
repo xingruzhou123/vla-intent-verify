@@ -4,3 +4,4 @@ third_party/
 *.pt
 *.npy
 *.h5
+docs/papers/
