@@ -5,3 +5,5 @@ third_party/
 *.npy
 *.h5
 docs/papers/
+.venv/
+__pycache__/

@@ -1,7 +1,7 @@
 # Status — VLA Intent–Evidence Verification (Paper 2)
 
-**Last updated:** 2026-09-23
-**Phase:** Month 1 — Go/No-Go (not started)
+**Last updated:** 2026-09-24
+**Phase:** Month 1 — Go/No-Go (Week 1 in progress)
 **Current gate verdict:** ⚪ pending
 **Target venue:** IEEE T-RL (fallback RA-L)
 
@@ -16,7 +16,7 @@
 | Obligation taxonomy (reference / precondition / effect) | ✅ decided |
 | Label definition (future-oriented next-interaction target) | ✅ decided |
 | Month-1 go/no-go criteria | ✅ drafted — freeze before held-out evaluation |
-| Environment on RTX 5080 | ⬜ not started |
+| Environment on RTX 5080 | 🟡 venv + PyTorch cu128 verified on sm_120 (2026-09-24); π0/LIBERO not yet installed |
 | π0 + LIBERO benign reproduction | ⬜ |
 | Activation hooks (layers × flow steps) | ⬜ |
 | RedVLA / HazardArena code availability check | ⬜ |
@@ -48,7 +48,7 @@
 
 ## Next actions (Week 1)
 
-1. Set up CUDA ≥ 12.8 + PyTorch with Blackwell support; confirm `torch.cuda` works on the 5080.
+1. ~~Set up CUDA ≥ 12.8 + PyTorch with Blackwell support; confirm `torch.cuda` works on the 5080.~~ ✅ 2026-09-24 (see Week 1 log)
 2. Install a PyTorch π0 implementation (openpi PyTorch or LeRobot) and LIBERO; headless MuJoCo rendering.
 3. Identify and download a LIBERO-fine-tuned π0 checkpoint; record source and licence in `models/checkpoints.md`.
 4. Run 2–3 benign LIBERO tasks; compare success with published numbers.
@@ -70,7 +70,7 @@
 
 ## Blockers
 
-_None yet._
+_None blocking._ Watch item: system `nvcc` is CUDA 12.6, which cannot target sm_120. Anything that builds CUDA extensions from source (flash-attn, custom kernels) will need a CUDA ≥ 12.8 toolkit installed or prebuilt wheels; the torch wheel itself bundles its own 12.8 runtime and is unaffected.
 
 ---
 
@@ -79,3 +79,13 @@ _None yet._
 ### Week 0 (2026-09-23)
 - Literature survey completed; closest works: SimpleVLA-Guard (RedVLA), SAFE, HazardArena, SAFECAST.
 - Plan and gate criteria written.
+
+### Week 1 (2026-09-24 → )
+- **Item 1 done — dedicated venv + PyTorch on RTX 5080.**
+  - Venv: `.venv/` in project root (uv, CPython 3.11.14; chosen because openpi requires 3.11). Not shared with physhall-safety. Added to `.gitignore`.
+  - Installed from `https://download.pytorch.org/whl/cu128`: `torch==2.11.0+cu128`, `torchvision==0.26.0+cu128`, `triton==3.6.0`, cuDNN 9.19.0. Nothing else installed yet.
+  - Host: driver 595.91.07, `nvidia-smi` CUDA 13.2; system `nvcc` is 12.6 (see Blockers watch item).
+  - Verification (`scripts/check_gpu.py`): device `NVIDIA GeForce RTX 5080`, capability (12, 0) = sm_120, 84 SMs, 15.45 GiB; `sm_120` present in torch arch list (no PTX JIT fallback); bf16 supported.
+  - bf16 matmul 2048² : max rel. error vs fp32 CPU reference 0.0021 (expected for bf16); ~0.20 ms/call ≈ 86 TFLOP/s. cuDNN bf16 conv2d OK.
+  - Note: ~0.7 GB of the 16 GB is held by the desktop (Xorg/GNOME); budget ~15 GB usable for π0 inference.
+- Next: item 2 (π0 PyTorch implementation + LIBERO + headless MuJoCo). Stopped here for review before installing anything further.
