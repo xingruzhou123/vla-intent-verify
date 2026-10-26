@@ -1,0 +1,27 @@
+# Month-1 policy/environment configuration (Week 1 item 2-3). Single source of truth for
+# what "one chunk" means in lead-time metrics: chunk_size=50 predicted, n_action_steps=10 executed
+# before replanning (matches openpi's LIBERO eval and RedVLA Table 11: C=50, replan every 10).
+policy:
+  type: pi05
+  # Candidate checkpoints (Hub revisions pinned 2026-09-24). `path` is the one selected after the
+  # smoke test; see models/checkpoints.md for the choice and reason.
+  candidates:
+    base: {repo: lerobot/pi05_libero_base, revision: a217bfd3}
+    finetuned: {repo: lerobot/pi05_libero_finetuned_v044, revision: 8e174154}
+  path: null                  # set after smoke test
+  chunk_size: 50              # action_horizon in openpi; expert outputs (B, 50, 1024)
+  n_action_steps: 10          # executed per chunk -> replan every 10 env steps (20 Hz -> 0.5 s)
+  num_inference_steps: 10     # flow-matching Euler steps; probe axis "flow step" = 0..9
+  empty_cameras: 1            # pi05_libero was trained with 2 cameras + 1 empty slot
+  dtype: bfloat16             # fp32 (14.5 GB) does not fit the 16 GB RTX 5080 alongside activations
+  compile_model: false        # keep hooks on the expert layers reliable
+env:
+  type: libero
+  control_mode: relative
+  init_states: true
+  hard_reset: true            # bit-identical to LIBERO's published protocol
+  max_parallel_tasks: 1
+  mujoco_gl: egl
+eval:
+  batch_size: 1
+  seed: 1000

@@ -16,7 +16,7 @@
 | Obligation taxonomy (reference / precondition / effect) | ✅ decided |
 | Label definition (future-oriented next-interaction target) | ✅ decided |
 | Month-1 go/no-go criteria | ✅ drafted — freeze before held-out evaluation |
-| Environment on RTX 5080 | 🟡 venv + PyTorch cu128 verified on sm_120 (2026-09-24); π0/LIBERO not yet installed |
+| Environment on RTX 5080 | 🟡 venv (py3.12) + torch 2.11.0+cu128 + LeRobot 0.6.2 + LIBERO (EGL headless) installed and verified 2026-09-24; π0.5 smoke test blocked on PaliGemma tokenizer gate |
 | π0 + LIBERO benign reproduction | ⬜ |
 | Activation hooks (layers × flow steps) | ⬜ |
 | RedVLA / HazardArena code availability check | 🟡 RedVLA: no code/assets released as of 2026-09-24 (page has dead Code button); HazardArena not yet checked |
@@ -70,7 +70,8 @@
 
 ## Blockers
 
-_None blocking._ Watch item: system `nvcc` is CUDA 12.6, which cannot target sm_120. Anything that builds CUDA extensions from source (flash-attn, custom kernels) will need a CUDA ≥ 12.8 toolkit installed or prebuilt wheels; the torch wheel itself bundles its own 12.8 runtime and is unaffected.
+- **PaliGemma tokenizer gate (2026-09-24).** `google/paligemma-3b-pt-224` is gated and the stored HF token (account `misaka1006`) is not on its access list. LeRobot's π0.5 preprocessor loads that tokenizer, so `lerobot-eval` cannot run. Fix: accept the licence at https://huggingface.co/google/paligemma-3b-pt-224 with that account (instant), then rerun the smoke test. No workaround via third-party mirrors (would bypass the licence).
+- _Previously:_ Watch item: system `nvcc` is CUDA 12.6, which cannot target sm_120. Anything that builds CUDA extensions from source (flash-attn, custom kernels) will need a CUDA ≥ 12.8 toolkit installed or prebuilt wheels; the torch wheel itself bundles its own 12.8 runtime and is unaffected.
 
 ---
 
@@ -95,3 +96,11 @@ _None blocking._ Watch item: system `nvcc` is CUDA 12.6, which cannot target sm_
   - LeRobot: torch `>=2.7,<2.12` from the cu128 index (lock already at 2.11.0+cu128), no JAX, `[pi,libero]` extras, in-process LIBERO via `hf-libero`, π0 and π0.5 LIBERO checkpoints on HF, same `action_out_proj` pre-velocity tensor and hookable 18-layer expert. **Recommended.** Cost: needs Python ≥ 3.12 → recreate `.venv` (uv 3.12.12 available).
   - RedVLA: Table 11 → one unified checkpoint per π model from PI; chunk 50, replan 10; SimpleVLA-Guard appendix details recorded. No code/assets released yet (CC BY-NC 4.0 promised).
   - Decision: primary checkpoint `lerobot/pi05_libero_finetuned_v044` (documented 97.5% avg), secondary `lerobot/pi0_libero_finetuned_v044`. Stopped before installing.
+- **Items 2–3 install (go-ahead received 2026-09-24).** Committed notes + status (19814f2).
+  - `.venv` recreated on CPython 3.12.12 (LeRobot requires ≥3.12). `configs/constraints-torch.txt` pins `torch==2.11.0+cu128`, `torchvision==0.26.0+cu128`; `uv pip install -e "third_party/lerobot[pi,libero]"` under that constraint kept both (verified) and added lerobot 0.6.2, transformers 5.5.4, hf-libero 0.1.4, mujoco 3.8.1, robosuite 1.4.0, torchcodec 0.11.1+cu128, numpy 2.2.6. `scripts/check_gpu.py` re-passed (same numbers as item 1).
+  - Install gotcha: `egl-probe==1.0.2` fails to build under CMake 4.x; fixed with `CMAKE_POLICY_VERSION_MINIMUM=3.5` at install time.
+  - LIBERO: first import writes `~/.libero/config.yaml` (answered N to custom dataset path); assets (586 files) auto-downloaded to `~/.cache/libero/assets`. Headless `LiberoEnv(libero_spatial, task 0)` with `MUJOCO_GL=egl` resets and steps (35 s incl. asset download).
+  - Project config `configs/pi05_libero.yaml`: chunk_size 50, **n_action_steps 10** (= one chunk for lead-time metrics), num_inference_steps 10, empty_cameras 1, dtype bf16, compile off; `scripts/eval_libero.py` wraps `lerobot-eval` with it.
+  - Checkpoints (π0.5 only, per instruction): `lerobot/pi05_libero_base@a217bfd3` (14.5 GB fp32) and `lerobot/pi05_libero_finetuned_v044@8e174154` (7.5 GB bf16) → HF cache; `models/checkpoints.md` created, selection pending.
+  - GPU load test (both checkpoints, bf16, dummy tokens): 4.14 B params, 8.71 GiB weights, 9.53 GiB peak, ~165 ms per chunk at batch 1; expert-layer hooks and `action_out_proj` hook fire 10×/chunk; pre-velocity (B, 50, 1024). Layers × flow-steps capture is feasible on the 5080.
+  - Smoke test via `scripts/eval_libero.py`: weights load, then **fails at the PaliGemma tokenizer gate (403)** — see Blockers. Checkpoint selection deferred; `models/checkpoints.md` records both candidates and the prior.
