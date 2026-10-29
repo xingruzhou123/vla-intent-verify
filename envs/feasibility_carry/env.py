@@ -55,7 +55,8 @@ class CarryConfig:
                                                  # object creep ≈ 4 mm across the pads under the oscillating normal load of a
                                                  # fast carry (soft tangential constraint); 0.005 s reduces this to < 0.8 mm
                                                  # with unchanged force tracking and sustained-peak scores (checked 2026-10-29).
-    com_offset_frac: float = 0.0                 # CoM offset along the body x axis (world x, orthogonal to closing), as a fraction of the width 2·half_size[0]
+    com_offset_frac: float = 0.0                 # CoM offset along the body x axis (world x, orthogonal to closing), as a fraction of the width 2·half_size[0];
+                                                 # nuisance variable (owner 2026-10-29): off-centre = 0.25 w; the torsion label never fired in the demos
     obj_xy: tuple = (0.0, -0.12)                 # start, relative to table centre
     goal_xy: tuple = (0.0, 0.18)                 # goal, relative to table centre (0.30 m lateral carry along +y)
     # approach (before the branch point)
@@ -77,7 +78,8 @@ class CarryConfig:
     release_settle: float = 0.5                  # s after opening the gripper
     # control
     control_freq: int = 20
-    osc_kp: float = 150.0
+    osc_kp: float = 600.0                       # frozen 2026-10-29 (owner): kp = 150 could not execute the 2x faster path
+                                                 # (lift 9 mm short at s = 0.5, lateral acceleration capped at 4.7 m/s^2)
     pad_half: float = 0.008                      # m, finger-pad half-extent (torsional slip lever arm, plan §3.2)
 
     def T_carry(self, s=1.0):

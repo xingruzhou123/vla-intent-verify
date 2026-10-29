@@ -46,7 +46,7 @@ Adds the CoM-induced torque, the pad contact geometry and a friction limit surfa
 | Setting | m, μ, f_tol, d given as | Calibration | Reported as |
 |---|---|---|---|
 | Oracle | true values | none | B6 (reference only; one row per rule) |
-| Coarse, uncalibrated | bin representative values fixed a priori: mass light/medium/heavy → 0.5 / 1.0 / 1.5 kg; friction slippery/normal → 0.2 / 0.4; fragility fragile/rigid → 20 / 50 N; balance balanced/off-centre → d = 0 / 0.15 w | none | B5a-u, B5b-u |
+| Coarse, uncalibrated | bin centres fixed a priori (plan §3.6 bands): mass light/medium/heavy → 0.5 / 1.0 / 1.5 kg; friction slippery/normal → 0.2 / 0.4; fragility fragile/rigid → 20 / 50 N; balance balanced/off-centre → d = 0 / 0.25 w; r_eff = 0.765 h | none; reference only | B5a-u, B5b-u |
 | Coarse, calibrated | the noisy coarse bins the VLA sees (ε = 0.1) | per coarse bin, a point estimate of m, μ, f_tol, d fitted on the **training split only** (mean of the true values of training groups in that bin), plus one scalar safety multiplier on F_min and one on F_max (and r_eff for B5b) fitted to maximise deadline-constrained safe success on training groups | B5a-c, B5b-c (**the fair comparison**) |
 
 Same information and the same data access as the learned method: the coarse text with the same noise realisation, and the same

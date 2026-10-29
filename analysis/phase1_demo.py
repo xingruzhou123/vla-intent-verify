@@ -210,7 +210,7 @@ def main(argv=None):
         lines.append(f"| {n} | {m:g} | {mu:g} | {d*1e3:.0f} | {len(rows)} | {len(sw['probes'])} | {np.mean([r['wall_s'] for r in rows]):.2f} | {a:.4f}·F + {b:.3f} | {r2:.4f} | {min(q):.1f}–{max(q):.1f} | {sw['meta']['closing_axis_world']} | {sw['meta'].get('contact', {}).get('obj_solref')} |")
     sw0 = next(iter(sweeps.values()))
     lines.append(f"\nGrid: F = {sw0['meta']['F']} N; s = {sw0['meta']['s']}; R = {sw0['meta']['repeats']} paired repeats. "
-                 f"T_carry(s₀) = {sw0['meta']['T_nominal']} s; T_max = {sw0['meta']['T_max']} (relaxed 2×, urgent 1.5× nominal + 0.5 s). "
+                 f"T_carry(s₀) = {sw0['meta']['T_nominal']} s; T_max = {sw0['meta']['T_max']} (relaxed 2×, urgent 1.0× nominal + 0.5 s). "
                  f"Labels: δ_slip = {L.DELTA_SLIP*1e3:g} mm, t_win = {L.T_WIN_PRIMARY}, κ = 1, fragile/rigid f_tol = {L.FRAGILITY}. τ = {fs.TAU}, γ = {fs.GAMMA}.\n")
     lines.append("### Realized peak acceleration per s (median over branches; 50 ms moving average; m/s²)\n")
     lines.append("| name | " + " | ".join(f"s = {s:g}" for s in sw0["meta"]["s"]) + " |")
@@ -263,16 +263,16 @@ def main(argv=None):
                 lines.append(f"| {frag} | {s:g} | {'✓' if v['deadline_ok'] else '✗'} | {fmin} | {br(bs)} | {fmax} | {br(bd)} | {fsh} | {feas} | {bl(('B5a','oracle'))} | {bl(('B5b','oracle'))} | {bl(('B5a','coarse'))} | {bl(('B5b','coarse'))} |")
         # selections
         lines.append("\n### Teacher selection per context (margin-maximising; ties toward nominal s)\n")
-        lines.append("| frag | urgency | grid feasible cells | grid 𝓕_phys cells | grid teacher (F, s) | grid margin | refined feasible s levels | refined selection (F, s) | refined margin (F-limited / s-limited) | P3 (grid) | s_rec bracket |")
+        lines.append("| frag | urgency | grid feasible cells | grid 𝓕_phys cells | grid teacher (F, s) | grid margin | refined feasible s levels | refined selection (F, s) | refined margin (F-limited / s-limited) | P3 (grid, reference = fastest s) | s_rec bracket |")
         lines.append("|---|---|---|---|---|---|---|---|---|---|---|")
         for frag in FRAGS:
             for urg in URGS:
                 ctx, iv = ctxs[(frag, urg)], refined[(frag, urg)]
                 t = ctx["teacher"]; sel, cands = fs.select_refined(iv)
-                j_nom = int(np.argmin(np.abs(np.log(np.array(ss)))))
+                j_nom = 0                                    # P3 reference speed = fastest grid s (notes/decision_phase1.md)
                 feas = ctx["feasible"]
                 if feas.any():
-                    p3 = "feasible at nominal" if feas[:, j_nom].any() else ("recovery at s = " + ", ".join(f"{ss[j]:g}" for j in range(len(ss)) if feas[:, j].any() and ctx["deadline_ok"][j]) if any(feas[:, j].any() and ctx["deadline_ok"][j] for j in range(len(ss))) else "feasible only past the deadline")
+                    p3 = "feasible at reference s" if feas[:, j_nom].any() else ("recovery at s = " + ", ".join(f"{ss[j]:g}" for j in range(len(ss)) if feas[:, j].any() and ctx["deadline_ok"][j]) if any(feas[:, j].any() and ctx["deadline_ok"][j] for j in range(len(ss))) else "feasible only past the deadline")
                 else:
                     p3 = "infeasible by design"
                 srec = sw["brackets"].get("s_rec", {}).get(f"{frag}|{urg}", {})
@@ -282,6 +282,30 @@ def main(argv=None):
                              f"{'' if sel is None else f"{sel['margin']:.3f} ({sel['margin_F']:.3f} / {sel['margin_s']:.3f})"} | {p3} | {srec_s} |")
                 sel_grid.append((f"{n}|{frag}|{urg}", None if t is None else t["s"]))
                 sel_ref.append((f"{n}|{frag}|{urg}", None if sel is None else sel["s"]))
+        # P2 / P3 / B5a summary on the refined boundaries (relaxed deadline)
+        lines.append("\n### P2, P3 and B5a-oracle error on the refined boundaries (relaxed deadline)\n")
+        lines.append("| frag | F_min(fastest s) − F_min(slowest deadline-ok s) [N] (P2 ≥ 9.75) | brackets | refined window at fastest s [N] | widest window at a slower deadline-ok s [N] (s) | grid level inside that window | B5a oracle |F_min error| per s [N] | B5a oracle |F_max error| per s [N] |")
+        lines.append("|---|---|---|---|---|---|---|---|")
+        for frag in FRAGS:
+            iv = refined[(frag, "relaxed")]
+            ok = [v for v in iv if v["deadline_ok"]]
+            f0, f1 = ok[0], ok[-1]
+            fm = lambda v: v["slip_fit"]["F50"] if v["slip_fit"] else None
+            shift = f"{fm(f0) - fm(f1):.1f}" if fm(f0) is not None and fm(f1) is not None else ""
+            b0 = sw["brackets"].get("slip", {}).get(str(f0["s_idx"]), {}); b1 = sw["brackets"].get("slip", {}).get(str(f1["s_idx"]), {})
+            br = lambda b: f"[{b['lo']:.1f}, {b['hi']:.1f}]" if b.get("status") == "bracketed" else b.get("status", "")
+            win = lambda v: (v["F_max"] - v["F_min"]) if (v["F_min"] is not None and v["F_max"] is not None) else None
+            w0 = win(f0)
+            slower = [v for v in ok[1:] if win(v) is not None]
+            best = max(slower, key=win) if slower else None
+            inside = ""
+            if best is not None and win(best) > 0:
+                inside = ", ".join(f"{F:.1f}" for F in Fs if best["F_min"] <= F <= best["F_max"]) or "none"
+            e_min = [abs(base[(frag, "B5a", "oracle")][j]["F_min"] - fm(iv[j])) for j in range(len(ss)) if fm(iv[j]) is not None and iv[j]["slip_status"] == "crossing"]
+            e_max = [abs(base[(frag, "B5a", "oracle")][j]["F_max"] - iv[j]["damage_fit"]["F50"]) for j in range(len(ss)) if iv[j]["damage_fit"] and iv[j]["damage_status"] == "crossing"]
+            lines.append(f"| {frag} | {shift} | {br(b0)} vs {br(b1)} | {'' if w0 is None else f'{w0:.1f}'} | "
+                         f"{'' if best is None else f'{win(best):.1f} (s = {best['s']:g})'} | {inside} | "
+                         f"{'' if not e_min else f'{min(e_min):.1f}–{max(e_min):.1f}'} | {'' if not e_max else f'{min(e_max):.1f}–{max(e_max):.1f}'} |")
         # P5 sensitivity on the grid+probes: damage boundary per setting (logistic 50 %) at the nominal s and the fastest s
         lines.append("\n### P5: damage-boundary sensitivity (50 % crossing in F, grid + probes), per setting\n")
         lines.append("| frag | s | " + " | ".join(f"N {w} ×{mult}" for w in L.T_WIN for mult in L.F_TOL_MULT) + " | " + " | ".join(f"L {w} {k} ×1" for w in L.T_WIN for k in L.KAPPAS) + " | τ(q_N, q_L) over grid cells |")
@@ -306,22 +330,47 @@ def main(argv=None):
                 qL = (ctx["P"]["deadline_success"] - ctx["P"]["slip"] - ctx["P"]["damage_shear"]).ravel()
                 tau = kendalltau(qN, qL).statistic if np.std(qN) > 0 and np.std(qL) > 0 else float("nan")
                 lines.append(f"| {frag} | {ss[j]:g} | " + " | ".join(cells) + f" | {tau:.3f} |")
-        # P6 repeatability
-        agree = {k: [] for k in ("slip", "completed", "damage_primary(fragile)", "damage_primary(rigid)", "deadline_success(relaxed, rigid)")}
+        # P6 repeatability; cells inside a refined boundary's uncertainty (95 % CI ∪ bisection bracket, relaxed deadline,
+        # either fragility) are reported separately (frozen 2026-10-29)
+        def boundary_cells():
+            cells = set()
+            for frag in FRAGS:
+                iv = refined[(frag, "relaxed")]
+                for j in range(len(ss)):
+                    spans = []
+                    for key, bkey in (("slip_fit", "slip"), ("damage_fit", "damage")):
+                        fit = iv[j][key]
+                        b = sw["brackets"].get(bkey, {}).get(str(j) if bkey == "slip" else f"{frag}|{j}", {})
+                        lo, hi = [], []
+                        if fit and fit["ci95"][0] is not None:
+                            lo.append(fit["ci95"][0]); hi.append(fit["ci95"][1])
+                        if b.get("status") == "bracketed":
+                            lo.append(b["lo"]); hi.append(b["hi"])
+                        if lo:
+                            spans.append((min(lo), max(hi)))
+                    for i, F in enumerate(Fs):
+                        if any(lo <= F <= hi for lo, hi in spans):
+                            cells.add((i, j))
+            return cells
+        bcells = boundary_cells()
+        agree = {k: {"in": [], "out": []} for k in ("slip", "completed", "damage_primary(fragile)", "damage_primary(rigid)", "deadline_success(relaxed, rigid)")}
         for i in range(len(Fs)):
             for j in range(len(ss)):
                 cell = [r for r in rows if r["F_idx"] == i and r["s_idx"] == j]
+                grp = "in" if (i, j) in bcells else "out"
                 def ag(vals):
                     vals = np.array(vals, float); return max(vals.mean(), 1 - vals.mean())
-                agree["slip"].append(ag([r["slip"] for r in cell])); agree["completed"].append(ag([r["completed"] for r in cell]))
-                agree["damage_primary(fragile)"].append(ag([r["fragility"]["fragile"]["damage_primary"] for r in cell]))
-                agree["damage_primary(rigid)"].append(ag([r["fragility"]["rigid"]["damage_primary"] for r in cell]))
-                agree["deadline_success(relaxed, rigid)"].append(ag([r["fragility"]["rigid"]["deadline_success_relaxed"] for r in cell]))
-        lines.append("\n### P6: repeat agreement per cell (fraction of repeats in the majority class; pass ≥ 0.9 per cell)\n")
-        lines.append("| label | mean | min | cells < 0.9 (of " + str(len(Fs) * len(ss)) + ") |")
-        lines.append("|---|---|---|---|")
+                agree["slip"][grp].append(ag([r["slip"] for r in cell])); agree["completed"][grp].append(ag([r["completed"] for r in cell]))
+                agree["damage_primary(fragile)"][grp].append(ag([r["fragility"]["fragile"]["damage_primary"] for r in cell]))
+                agree["damage_primary(rigid)"][grp].append(ag([r["fragility"]["rigid"]["damage_primary"] for r in cell]))
+                agree["deadline_success(relaxed, rigid)"][grp].append(ag([r["fragility"]["rigid"]["deadline_success_relaxed"] for r in cell]))
+        lines.append(f"\n### P6: repeat agreement per cell (fraction of repeats in the majority class; pass ≥ 0.9 per cell outside boundary uncertainty; {len(bcells)} of {len(Fs)*len(ss)} cells lie inside a boundary CI/bracket and are reported separately)\n")
+        lines.append("| label | outside boundaries: mean | min | cells < 0.9 | inside boundaries: mean | min | cells < 0.9 |")
+        lines.append("|---|---|---|---|---|---|---|")
         for k, v in agree.items():
-            lines.append(f"| {k} | {np.mean(v):.3f} | {np.min(v):.2f} | {int(np.sum(np.array(v) < 0.9))} |")
+            o, b = v["out"], v["in"]
+            lines.append(f"| {k} | {np.mean(o):.3f} | {np.min(o):.2f} | {int(np.sum(np.array(o) < 0.9))} | "
+                         f"{'' if not b else f'{np.mean(b):.3f}'} | {'' if not b else f'{np.min(b):.2f}'} | {'' if not b else int(np.sum(np.array(b) < 0.9))} |")
         # impulse appendix
         lines.append("\n### Appendix: excess-impulse damage D over grasp + carry (N·s), rigid f_tol, at F = 70 N per s: " +
                      ", ".join(f"s={s:g}: {np.mean([r['fragility']['rigid']['damage_impulse_D'] for r in rows if r['F_idx']==len(Fs)-1 and r['s_idx']==j]):.1f}" for j, s in enumerate(ss)) + "\n")
@@ -355,20 +404,6 @@ def main(argv=None):
         lines.append(f"- **{lab}:** contexts with a feasible set: {r['n_contexts']}; modal s = {r.get('modal_s')}; fraction non-modal = {fmt(r.get('frac_non_modal'), 2)}; "
                      f"P7 on these contexts: {'pass' if r['pass'] else ('fail' if r['pass'] is False else 'n/a')}. Selections: " +
                      ", ".join(f"{c}: {('∅' if s is None else f'{s:g}')}" for c, s in r.get("selections", [])))
-    # alternative urgent level (plan §3.7): 1.0 × T_carry(s0) + 0.5 s, post hoc on the refined sets
-    T_alt = 1.0 * sw0["meta"]["T_nominal"] + 0.5
-    sel_alt = []
-    for (n, frag, urg), iv in refined_all.items():
-        if urg != "relaxed":
-            continue
-        iv_alt = [dict(v, deadline_ok=bool(sw0["meta"]["T_nominal"] * v["s"] <= T_alt),
-                       feasible=bool(v["feasible"] and sw0["meta"]["T_nominal"] * v["s"] <= T_alt)) for v in iv]
-        sel, _ = fs.select_refined(iv_alt)
-        sel_alt.append((f"{n}|{frag}|urgent1.0", None if sel is None else sel["s"]))
-    relaxed_only = [(c, s_) for c, s_ in sel_ref if c.endswith("|relaxed")]
-    r = fs.p7_context_dependence(relaxed_only + sel_alt)
-    lines.append(f"- **refined set, urgent level = 1.0 × nominal + 0.5 s = {T_alt:.2f} s instead of 1.5 ×:** contexts {r['n_contexts']}; modal s = {r.get('modal_s')}; "
-                 f"fraction non-modal = {fmt(r.get('frac_non_modal'), 2)}. Selections (urgent1.0 only): " + ", ".join(f"{c}: {('∅' if s_ is None else f'{s_:g}')}" for c, s_ in sel_alt))
     # best single fixed
     ctx_list = [all_ctx[k] for k in all_ctx if all_ctx[k]["feasible"].any() or True]
     bsf = fs.best_single_fixed(ctx_list)

@@ -16,7 +16,7 @@ is restored from the saved MuJoCo state at the branch point.
 |---|---|---|
 | `group_id` | str | unique; never reused across splits |
 | `object_id` | str | object instance (mesh / geometry) |
-| `properties_true` | {m, μ, f_tol (fragility), com_offset (3-vector, m; Phase 1: along the horizontal axis orthogonal to closing, 0 or 0.15 w = 6 mm)} | **labels and oracle setting only** |
+| `properties_true` | {m, μ, f_tol (fragility, both sampled classes), com_offset (3-vector, m; along the horizontal axis orthogonal to closing)} — continuous values sampled inside the coarse bands (plan §3.6; `envs/feasibility_carry/objects.py`, `data/objects_<version>.json`) | **labels and oracle setting only** |
 | `properties_coarse` | {mass_bin, friction_bin, fragility_bin, balance_bin} + `noise_eps` | binned text attributes as the VLA sees them (plan §3.6: light/medium/heavy, slippery/normal, fragile/rigid, balanced/off-centre); noise ε = 0.1 applied at generation time and logged |
 | `instruction` | str | task language; states the urgency level |
 | `urgency` | relaxed / urgent | deadline context (plan §3.7); groups sharing a branch state but differing in urgency share their branches |
@@ -96,7 +96,7 @@ Bisection probes that refine the slip and damage boundaries in F (and s_rec in s
 | Split | Held out | Purpose |
 |---|---|---|
 | test-objects | object instances | generalization across geometry/appearance |
-| test-combos | property combinations seen in no training group | feasible-set shift with context |
+| test-combos | sampled objects (continuous property values) seen in no training group; one per bin cell | feasible-set shift with context under attribute uncertainty |
 | test-extrapolation | combos outside the demonstration coverage (m, μ, fragility beyond the demo range) | demo-anchored selection (B7) versus margin-aware selection |
 | test-layout | seen combos, new initial layout | layout robustness |
 | val | grouped like train, disjoint groups | λ tuning only |

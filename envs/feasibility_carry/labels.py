@@ -98,7 +98,7 @@ def sustained_peak(x, dt, t_win):
     return float(np.lib.stride_tricks.sliding_window_view(x, n).min(axis=1).max())
 
 
-def damage_scores(R):
+def damage_scores(R, fragility=FRAGILITY):
     """Per-pad load series over grasp + carry and the sustained-peak scores for every (t_win, κ).
     Returns {"N": {t_win: score}, "L": {t_win: {κ: score}}, "impulse": fn(f_tol)}."""
     mask = np.isin(R["phase"], LOAD_PHASES)
@@ -114,7 +114,7 @@ def damage_scores(R):
             L = N + kappa * np.abs(Tt)
             out["L"][wn][kn] = max(sustained_peak(L[:, k], dt, tw) for k in (0, 1))
     Nmax = N.max(axis=1)
-    out["impulse"] = {name: float(np.sum(np.maximum(0.0, Nmax - f) * dt)) for name, f in FRAGILITY.items()}
+    out["impulse"] = {name: float(np.sum(np.maximum(0.0, Nmax - f) * dt)) for name, f in fragility.items()}
     return out
 
 
@@ -172,7 +172,7 @@ def all_labels(rec, cols, goal_pos, pad_half, T_carry, T_max_levels, fragility=F
     cp = completed(R, goal_pos)
     acc = realized_accel(R)
     acc.update({k + "_20ms": v for k, v in realized_accel(R, smooth=0.02).items()})
-    sc = damage_scores(R)
+    sc = damage_scores(R, fragility)
     out = {**sl, **cp, **acc, "T_carry": float(T_carry),
            "score_N": sc["N"], "score_L": sc["L"], "peak_N": sc["peak_N"], "impulse": sc["impulse"],
            "fragility": {}}

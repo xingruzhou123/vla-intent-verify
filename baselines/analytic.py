@@ -48,12 +48,14 @@ def wrench_interval(m, mu, f_tol, d, a_lift, a_lat, a_lower, r_eff=R_EFF, kappa=
     return float(F_min), float(F_max), {"lift": F_lift, "lateral": F_lat, "lower": F_lower}
 
 
-COARSE_BINS = {"mass": {"light": 0.5, "medium": 1.0, "heavy": 1.5}, "friction": {"slippery": 0.2, "normal": 0.4},
-               "fragility": {"fragile": 20.0, "rigid": 50.0}, "balance": {"balanced": 0.0, "off-centre": 0.15 * 0.04}}
+from envs.feasibility_carry.objects import BANDS, CENTRES   # bin bands (sampled truth) and centres (uncalibrated estimate)
+
+COARSE_BINS = {"mass": CENTRES["mass"], "friction": CENTRES["friction"], "fragility": CENTRES["fragility"],
+               "balance": {k: v * 0.04 for k, v in CENTRES["balance"].items()}}   # balance in metres (w = 4 cm)
 
 
 def coarse_bin(m, mu, f_tol, d):
-    """Nearest bin for each attribute (what the coarse text would say without noise)."""
+    """Nearest bin centre for each attribute (what the coarse text would say without noise)."""
     pick = lambda table, v: min(table, key=lambda k: abs(table[k] - v))
     return {"mass": pick(COARSE_BINS["mass"], m), "friction": pick(COARSE_BINS["friction"], mu),
             "fragility": pick(COARSE_BINS["fragility"], f_tol), "balance": pick(COARSE_BINS["balance"], d)}

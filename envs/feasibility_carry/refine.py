@@ -5,9 +5,9 @@ For every s level of a finished grid sweep:
 - slip boundary in F: bracket = (highest grid F that slips, lowest grid F that does not), bisected with R paired repeats
   per probe until the bracket is ≤ `bracket_N` or `max_probes` have been spent;
 - primary-damage boundary in F, per fragility level, likewise (bracket = (highest grid F without damage, lowest with));
-- P3 recovery threshold s_rec, per (fragility, urgency): if no grid F is feasible at the nominal s but some slower,
-  deadline-feasible level is, bisect in log s between the nominal level and the fastest feasible slower level at that
-  level's margin-maximising F.
+- P3 recovery threshold s_rec, per (fragility, urgency): if no grid F is feasible at the reference speed (the fastest
+  grid s; definitional change of 2026-10-29, notes/decision_phase1.md) but some slower, deadline-feasible level is,
+  bisect in log s between the reference level and the fastest feasible slower level at that level's margin-maximising F.
 
 Boundary estimates (50 % crossing of a logistic fit over grid + probe outcomes, bootstrap CI over repeats) are computed
 in analysis (feasible.py); this module only runs the simulations.
@@ -30,15 +30,15 @@ def load_states(out, R):
 
 
 class Prober:
-    def __init__(self, env, out, states, T_max, rows):
-        self.env, self.out, self.states, self.T_max, self.rows = env, out, states, T_max, rows
+    def __init__(self, env, out, states, T_max, rows, fragility):
+        self.env, self.out, self.states, self.T_max, self.rows, self.fragility = env, out, states, T_max, rows, fragility
         (out / "probes").mkdir(exist_ok=True)
         self.k = len(rows)
 
     def probe(self, F, s, s_idx, purpose):
         infos = []
         for r, saved in enumerate(self.states):
-            info, arr = run_branch(self.env, saved, F, s, self.T_max)
+            info, arr = run_branch(self.env, saved, F, s, self.T_max, self.fragility)
             info.update({"repeat": r, "s_idx": s_idx, "probe_idx": self.k, "purpose": purpose, "F_idx": None})
             np.savez_compressed(self.out / "probes" / f"p{self.k}_r{r}.npz", rec=arr.astype(np.float32),
                                 cols=np.array(self.env.SAMPLE_COLS))
@@ -82,7 +82,7 @@ def main(argv=None):
     states = load_states(out, R)
     probes_path = out / "probes.json"
     prows = json.loads(probes_path.read_text())["probes"] if probes_path.exists() else []
-    prober = Prober(env, out, states, meta["T_max"], prows)
+    prober = Prober(env, out, states, meta["T_max"], prows, {k: float(v) for k, v in meta["label_settings"]["fragility"].items()})
     logf = open(out / "refine_log.txt", "a")
     def log(msg):
         print(msg, flush=True); logf.write(msg + "\n"); logf.flush()
@@ -130,13 +130,13 @@ def main(argv=None):
         (out / "probes.json").write_text(json.dumps({"probes": prows, "brackets": brackets}, indent=1, default=float))
     # ---- P3 recovery threshold s_rec
     if not args.no_srec:
-        j_nom = int(np.argmin(np.abs(np.log(np.array(ss)))))
+        j_nom = 0                                   # reference speed = fastest grid s (P3, notes/decision_phase1.md)
         for frag in meta["label_settings"]["fragility"]:
             for urg, T_max in meta["T_max"].items():
                 ctx = fs.context_tables(rows, Fs, ss, frag, urg, meta["T_nominal"], T_max)
                 feas = ctx["feasible"]                           # [F_idx, s_idx]
                 if feas[:, j_nom].any():
-                    brackets["s_rec"][f"{frag}|{urg}"] = {"status": "feasible_at_nominal"}
+                    brackets["s_rec"][f"{frag}|{urg}"] = {"status": "feasible_at_reference"}
                     continue
                 slower = [jj for jj in range(j_nom + 1, len(ss)) if ctx["deadline_ok"][jj] and feas[:, jj].any()]
                 if not slower:
@@ -156,7 +156,7 @@ def main(argv=None):
                     n += 1
                     log(f"    s_rec[{frag},{urg}] F={F_best:.2f} probe s={mid:.3f}: all-ok={ok} -> bracket [{lo:.3f}, {hi:.3f}]")
                 brackets["s_rec"][f"{frag}|{urg}"] = {"status": "bracketed", "lo": lo, "hi": hi, "F": F_best, "n_probes": n,
-                                                       "s_nominal": ss[j_nom], "s_grid_recovery": ss[jr]}
+                                                       "s_reference": ss[j_nom], "s_grid_recovery": ss[jr]}
     (out / "probes.json").write_text(json.dumps({"probes": prows, "brackets": brackets}, indent=1, default=float))
     log(f"[refine] done: {len(prows)} probe branches, {time.perf_counter()-t0:.0f} s")
 

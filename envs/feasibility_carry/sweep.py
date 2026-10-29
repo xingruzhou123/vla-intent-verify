@@ -12,7 +12,7 @@ from . import labels
 
 F_GRID = [round(float(x), 3) for x in np.geomspace(5.0, 70.0, 8)]     # plan §6 (frozen)
 S_GRID = [round(float(x), 3) for x in np.geomspace(0.5, 3.0, 6)]
-URGENCY = {"relaxed": 2.0, "urgent": 1.5}      # T_max = mult × T_carry(s0) + settle margin (plan §3.7)
+URGENCY = {"relaxed": 2.0, "urgent": 1.0}      # T_max = mult × T_carry(s0) + settle margin (plan §3.7; urgent = nominal-speed execution plus settling, frozen 2026-10-29)
 SETTLE_MARGIN = 0.5
 PERT = {"pose_sd": 0.002, "yaw_sd": float(np.deg2rad(2.0)), "mu_sd": 0.03}
 
@@ -28,7 +28,7 @@ def perturbation(rng, r):
             "mu_scale": float(1 + rng.normal(0, PERT["mu_sd"]))}
 
 
-def run_branch(env, saved, F, s, T_max_levels):
+def run_branch(env, saved, F, s, T_max_levels, fragility=None):
     """Restore the branch state, grasp with F, carry with s, release, label. Returns (info, rec array)."""
     env.restore_state(saved)
     rec = []
@@ -38,7 +38,8 @@ def run_branch(env, saved, F, s, T_max_levels):
     env.release(pos, mat, rec)
     wall = time.perf_counter() - t0
     arr = np.array(rec)
-    lab = labels.all_labels(arr, env.SAMPLE_COLS, env.goal_pos(), env.cfg.pad_half, env.cfg.T_carry(s), T_max_levels)
+    lab = labels.all_labels(arr, env.SAMPLE_COLS, env.goal_pos(), env.cfg.pad_half, env.cfg.T_carry(s), T_max_levels,
+                            fragility=fragility or labels.FRAGILITY)
     info = {"F": float(F), "s": float(s), "wall_s": wall, "sim_s": float(arr[-1, 0] - arr[0, 0]), **gs, **lab}
     return info, arr
 
@@ -48,14 +49,15 @@ def make_env(args):
     return FeasibilityCarry(cfg, seed=args.seed)
 
 
-def meta_dict(env, args, T_max, perts):
+def meta_dict(env, args, T_max, perts, fragility):
     m = env.sim.model
     return {"config": env.config_dict(), "F": args.F, "s": args.s, "repeats": args.repeats,
             "T_nominal": env.cfg.T_carry(1.0), "urgency_mult": URGENCY, "settle_margin": SETTLE_MARGIN, "T_max": T_max,
             "label_settings": {"delta_slip": labels.DELTA_SLIP, "drop_dist": labels.DROP_DIST, "t_win": labels.T_WIN,
                                "t_win_primary": labels.T_WIN_PRIMARY, "kappas": labels.KAPPAS,
                                "kappa_primary": labels.KAPPA_PRIMARY, "f_tol_mult": labels.F_TOL_MULT,
-                               "fragility": labels.FRAGILITY, "goal_tol": [labels.GOAL_XY_TOL, labels.GOAL_Z_TOL]},
+                               "fragility": fragility, "goal_tol": [labels.GOAL_XY_TOL, labels.GOAL_Z_TOL]},
+            "object_id": args.object_id,
             "perturbation_sd": PERT, "perturbations": perts,
             "solver": {"timestep": float(m.opt.timestep), "noslip_iterations": int(m.opt.noslip_iterations),
                        "impratio": float(m.opt.impratio), "cone": int(m.opt.cone), "integrator": int(m.opt.integrator)},
@@ -79,12 +81,15 @@ def main(argv=None):
     ap.add_argument("--mass", type=float, required=True)
     ap.add_argument("--mu", type=float, required=True)
     ap.add_argument("--com_frac", type=float, default=0.0, help="CoM offset along world x as a fraction of the width")
+    ap.add_argument("--fragility", nargs="+", default=None, help="per-object damage tolerances, e.g. fragile=18.3 rigid=52.0 (default: bin centres 20 / 50 N)")
+    ap.add_argument("--object_id", default=None, help="object id from objects.json (recorded in meta)")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args(argv)
 
     out = pathlib.Path(args.out); (out / "branches").mkdir(parents=True, exist_ok=True)
     env = make_env(args)
     T_max = deadline_levels(env.cfg)
+    fragility = {k: float(v) for k, v in (x.split("=") for x in args.fragility)} if args.fragility else dict(labels.FRAGILITY)
     rng = np.random.default_rng(args.seed)
     rows, perts = [], []
     for r in range(args.repeats):
@@ -99,7 +104,7 @@ def main(argv=None):
               f"closing axis (world) = {env.closing_axis_world().round(3)}", flush=True)
         for i, F in enumerate(args.F):
             for j, s in enumerate(args.s):
-                info, arr = run_branch(env, saved, F, s, T_max)
+                info, arr = run_branch(env, saved, F, s, T_max, fragility)
                 info.update({"repeat": r, "F_idx": i, "s_idx": j, "pert": pert})
                 np.savez_compressed(out / "branches" / f"F{i}_s{j}_r{r}.npz", rec=arr.astype(np.float32),
                                     cols=np.array(env.SAMPLE_COLS))
@@ -111,7 +116,7 @@ def main(argv=None):
                       f"N50={info['score_N']['50ms']:5.1f} L50={info['score_L']['50ms']['k1']:5.1f} "
                       f"-> slip={int(info['slip'])} dmg(frag/rigid)={int(fr['fragile']['damage_primary'])}/{int(fr['rigid']['damage_primary'])} "
                       f"done={int(info['completed'])} xy={info['final_xy_err']*1000:4.0f}mm [{info['wall_s']:.2f}s]", flush=True)
-        (out / "summary.json").write_text(json.dumps({"meta": meta_dict(env, args, T_max, perts), "branches": rows},
+        (out / "summary.json").write_text(json.dumps({"meta": meta_dict(env, args, T_max, perts, fragility), "branches": rows},
                                                      indent=1, default=float))
     print("wrote", out / "summary.json")
 
