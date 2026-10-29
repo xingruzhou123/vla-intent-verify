@@ -43,14 +43,14 @@ Code written for these items stays in the repo but is not extended. Do not delet
 
 - [x] Commit the uncommitted Week-1 files from v0.1 (environment, hooks) before starting new work — done 2026-10-26 (7b96be5); v0.1 plan and notes archived 2026-10-29
 - [x] Rewrite `CLAUDE.md` and write `docs/data_spec.md` for the new plan — done 2026-10-29 (no earlier copies found; data spec written fresh from plan §7)
-- [ ] `envs/feasibility_carry/`: pick-and-carry task on the robosuite/MuJoCo Panda
-  - [ ] force-limited gripper (`forcerange` = F)
-  - [ ] parametric object (m, μ, fragility)
-  - [ ] fixed carry path with time scaling s
-  - [ ] save/restore of the full MuJoCo state at the pre-contact branch point
-  - [ ] damage functionals: accumulated excess impulse (primary), peak force (secondary)
-- [ ] Sweep: F 8 × s 6 × R 5 over ≥ 12 property combos
-- [ ] P1 force control · P2 s moves a boundary · P3 slow-down recovery region · P4 analytic rule not near-perfect · P5 robustness · P6 repeatability
+- [x] `envs/feasibility_carry/`: pick-and-carry task on the robosuite/MuJoCo Panda — built 2026-10-29 (`env.py`, `labels.py`, `sweep.py`; pilot scale)
+  - [x] force-limited gripper (`forcerange` = F; finger target ramped past the joint range so the actuator saturates at F)
+  - [x] parametric object (m, μ via geom priority 1; fragility = (f_tol, D_max) tolerances, values pending owner decision)
+  - [x] fixed carry path with time scaling s (min-jerk lift / lateral / lower, OSC_POSE absolute; realized acceleration saturates below s ≈ 0.4)
+  - [x] save/restore of the full MuJoCo state at the pre-contact branch point (`mj_getState` / `mj_setState`, INTEGRATION spec)
+  - [x] damage functionals: accumulated excess impulse (primary), peak force (secondary) — implementation A only; implementation B (G7/G8) not written yet
+- [ ] Sweep: F 8 × s 6 × R 5 over ≥ 12 property combos — infrastructure ready; **pilot only so far** (1 combo, F 4 × s 3 × R 2, `results/phase1/pilot/`) plus a 12-branch slip-boundary probe; full sweep waits on owner decisions (parameter ranges, F→N mapping, damage tolerances)
+- [ ] P1 force control (🟡 pilot: measured = 0.9998·F − 0.007 N, R² = 1.000 over 8–60 N; fingers at 19.0–19.7 mm vs 0 mm limit; formal check at full sweep) · P2 s moves a boundary · P3 slow-down recovery region · P4 analytic rule not near-perfect · P5 robustness · P6 repeatability
 - [ ] Figures in `results/phase1/`; verdict in `notes/decision_phase1.md`
 
 ## 5. After Phase 1 (only if P1–P3 and P6 pass)
@@ -69,3 +69,4 @@ Code written for these items stays in the repo but is not extended. Do not delet
 | Late Sep → Oct | Week-1 environment set up: venv, LIBERO, π0.5 checkpoints, hooks verified; tokenizer licence blocking |
 | 2026-10-29 | Switched to `plan.md` (Counterfactual Feasibility Distillation); v0.1 archived as `plan_v0.1.md`; status refreshed |
 | 2026-10-29 | Housekeeping done: v0.1 materials archived (e8145f8), plan switch committed (bcaa0f4), `CLAUDE.md` rewritten and `docs/data_spec.md` written for interaction groups. Tokenizer still gated (owner accepting licence). Next: Phase 1 `envs/feasibility_carry/` |
+| 2026-10-29 | Phase 1 started. `envs/feasibility_carry/` built and smoke-tested; pilot 4 × 3 × 2 on one combo (m 0.3 kg, μ 0.4): force tracking R² = 1.000, 0.8 s wall per branch (≈ 39 min for the full 2880-branch sweep); no slip anywhere in the pilot, slip boundary confirmed reachable on a 0.8 kg / μ 0.25 probe (all F ≤ 12 N drop, analytic need ≈ 16–17 N). Options for parameter ranges, F→N mapping and damage tolerances sent to owner; full sweep not started. Code uncommitted pending review. |
