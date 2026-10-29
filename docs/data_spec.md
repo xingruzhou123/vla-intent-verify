@@ -16,12 +16,15 @@ is restored from the saved MuJoCo state at the branch point.
 |---|---|---|
 | `group_id` | str | unique; never reused across splits |
 | `object_id` | str | object instance (mesh / geometry) |
-| `properties_true` | {m, μ, fragility (f_tol, D_max)} | **labels and oracle setting only** |
-| `properties_coarse` | {mass_bin, friction_bin, fragility_bin} + `noise_eps` | binned text attributes as the VLA sees them (plan §3.6); noise applied at generation time and logged |
-| `instruction` | str | task language |
+| `properties_true` | {m, μ, f_tol (fragility), com_offset (3-vector, m; Phase 1: along the horizontal axis orthogonal to closing, 0 or 0.15 w = 6 mm)} | **labels and oracle setting only** |
+| `properties_coarse` | {mass_bin, friction_bin, fragility_bin, balance_bin} + `noise_eps` | binned text attributes as the VLA sees them (plan §3.6: light/medium/heavy, slippery/normal, fragile/rigid, balanced/off-centre); noise ε = 0.1 applied at generation time and logged |
+| `instruction` | str | task language; states the urgency level |
+| `urgency` | relaxed / urgent | deadline context (plan §3.7); groups sharing a branch state but differing in urgency share their branches |
 | `obs_decision` | two camera views + proprioception at the decision chunk | the chunk that closes the gripper (plan §3.1) |
 | `branch_state` | full MuJoCo state (qpos, qvel, act, ctrl, time, warmstart) | save/restore point |
 | `nominal` | (F₀, s₀) | demonstration parameters |
+| `T_max` | {urgency: float} | deadline on the s-scaled carry per urgency level (plan §3.7); frozen per dataset version |
+| `path` | waypoints + nominal segment durations | the fixed carry path (plan §3.1) |
 | `grid` | F levels × s levels, R repeats | Phase 1: 8 × 6 × 5 |
 | `solver` | timestep, `noslip_iterations`, `impratio`, cone, integrator | frozen per dataset version; logged |
 | `split` | train / val / test-objects / test-combos / test-extrapolation / test-layout | grouped; see §3 |
@@ -33,22 +36,30 @@ is restored from the saved MuJoCo state at the branch point.
 | `F`, `s` | float | commanded; `F` = actuator `forcerange` upper bound, `s` = carry time scaling |
 | `F_norm`, `s_norm` | float in [0,1] | F̃ linear, s̃ log-linear (plan §3.1) |
 | `perturbation` | {pose_delta, friction_noise, seed} | small per-repeat perturbation (plan §3.2) |
-| `force_contact` | time series f_n(t) per finger | measured normal force |
-| `kinematics` | time series of object and gripper pose | carry kinematics; slip displacement derived from it |
-| `outcome` | {slip, damage, complete} ∈ {0,1}³ | plan §3.2 definitions |
-| `damage_impulse` | D = ∫ max(0, f_n − f_tol) dt; `damage_primary` = D > D_max | primary definition (plan §3.5) |
-| `damage_peak` | max f_n; `damage_secondary` = max f_n > f_tol | secondary definition |
+| `force_normal` | time series N(t) per pad | summed normal contact force on the object, per pad |
+| `force_tangential` | time series T(t) per pad (2-vector) | summed tangential contact force per pad |
+| `n_contacts` | time series per pad | number of active contact points (torsional resistance diagnostic) |
+| `kinematics` | time series of object and gripper pose | carry kinematics; slip displacement (translation and rotation about the pad normal) derived from it |
+| `a_realized` | {lift, lateral, lower, resultant} peak, 50 ms-smoothed (20 ms peak also stored) | realized end-effector acceleration from the simulated kinematics; used by all analyses and baselines instead of the commanded profile |
+| `T_carry` | float | s-scaled carry duration; `deadline_success` compares it with `T_max` |
+| `outcome` | {slip, damage_primary, damage_shear, physical_safe, completed, deadline_success_relaxed, deadline_success_urgent} ∈ {0,1}⁷ | plan §3.2, §3.5; `damage` in the feasible-set definition means `damage_primary`; fragility-dependent labels are stored once per fragility level |
+| `damage_primary_score` | max over t of min_{τ∈[t,t+t_win]} N(τ), per pad (max of the two) | sustained-peak crush proxy; `damage_primary` = score > f_tol at t_win = 50 ms |
+| `damage_shear_score` | same with L(τ) = N(τ) + κ·|T(τ)|, κ = 1 | shear-augmented proxy; `damage_shear` = score > f_tol |
+| `damage_sensitivity` | labels for f_tol × {0.75, 1, 1.25} × t_win ∈ {50, 100} ms × κ ∈ {0.5, 1, 2} | Phase-1 check P5; recomputable from the force series |
+| `damage_impulse` | D = ∫ max(0, N − f_tol) dt (appendix only) | stress test, never a primary label |
 | `actions` | per-step (Δx, ΔR, g) trajectory | required for every executed episode (𝓛_flow) |
 | `replay_error` | contact-force and kinematics error on replay | see gate G5 |
 
 ### 1.3 Derived per group (computed, never hand-edited)
 
-- `P_hat[k][F][s]` for k ∈ {complete, slip, damage}: empirical rate over the R repeats.
-- `feasible[F][s]`: P_complete ≥ τ_c ∧ P_slip ≤ τ_s ∧ P_damage ≤ τ_d (initial τ = 0.9 / 0.05 / 0.05, frozen before main experiments).
-- `margin[F][s]`: distance in (F̃, s̃) space to the nearest infeasible cell; negative outside 𝓕.
-- `q[F][s]` = P_complete − α·P_slip − β·P_damage (α = β = 1), ranking loss and diagnostics only.
+- All derived quantities below are computed **per context** (fragility level × urgency level) of the group.
+- `P_hat[k][F][s]` for k ∈ {deadline_success, physical_safe, completed, slip, damage}: empirical rate over the R repeats.
+- `feasible[F][s]`: P_deadline_success ≥ τ_c ∧ P_slip ≤ τ_s ∧ P_damage ≤ τ_d (initial τ = 0.9 / 0.05 / 0.05, frozen before main experiments).
+- `feasible_phys[F][s]`: the same with P_physical_safe∧completed; analysis only, never a training target.
+- `margin[F][s]`: distance in (F̃, s̃) space to the nearest infeasible cell, with virtual cells one step beyond the grid edges counted as infeasible; negative outside 𝓕.
+- `q[F][s]` = P_deadline_success − α·P_slip − β·P_damage (α = β = 1), ranking loss and diagnostics only.
 - `teacher_target` = (F*, s*) from plan §3.4, or `null` with `infeasible_by_design = true` when 𝓕 is empty.
-- All derived quantities are stored twice, once per damage definition (§1.2), so Phase-1 check P5 (damage-definition robustness, plan §6) can be recomputed from stored data. P5 is a physics check, not a data gate.
+- All derived quantities are stored once per sensitivity setting (proxy × f_tol multiplier × t_win × κ, §1.2), so Phase-1 check P5 (damage-definition and threshold sensitivity, plan §6) can be recomputed from stored data. P5 is a physics check, not a data gate.
 
 ## 2. Validation gates
 
@@ -60,10 +71,10 @@ relaxed after the fact.
 |---|---|---|---|
 | **G1** | Scene validity | object and goal region in both camera views at the decision chunk; no interpenetration at the branch state (MuJoCo contact penetration below tolerance) | 100 % of groups |
 | **G2** | Branch purity | within a group, every field except (F, s, perturbation) is identical; branch state hash matches across branches | 100 % of groups |
-| **G3** | Split integrity | no `group_id`, and no `object_id` or property combo assigned to a held-out split, appears in train/val | 0 leaks |
+| **G3** | Split integrity | no `group_id`, and no `object_id` or property combo assigned to a held-out split, appears in train/val; boundary probes (§4a) carry their combination's split and never appear in training groups | 0 leaks |
 | **G4** | Trivial-feature control | a classifier using only trivial features (object_id, group_id, object count) predicts branch outcomes on held-out groups | held-out AUROC ≤ 0.6, or accuracy ≤ majority-class baseline + 5 points (owner-approved 2026-10-29) |
 | **G5** | Replay fidelity | replaying stored (a_{1:T}, F, s) from the branch state reproduces logged contact force and carry kinematics within tolerance (tolerance set in Phase 1 and recorded here) | ≥ 99 % of branches (owner-approved 2026-10-29) |
-| **G6** | Label spot check | video of a random sample of branches is checked by a human against the stored outcome labels | error ≤ 5 % per outcome class |
+| **G6** | Label spot check | video of a random sample of branches is checked by a human against the stored outcome labels (all six labels of §1.2) | error ≤ 5 % per outcome class |
 | **G7** | Independent second labeler | a second, independent implementation of the outcome labeler (different code path, same raw time series) is run on all branches | agreement ≥ 95 % per class; disagreements listed, none silently resolved |
 
 Additional gate for derived quantities (code correctness, **same damage definition, same inputs** as the first implementation):
@@ -75,6 +86,10 @@ Additional gate for derived quantities (code correctness, **same damage definiti
 G7 and G8 together form the two-implementation cross-check. They test code, not physics. The agreement between the
 primary and secondary **damage definitions** (Kendall τ ≥ 0.8 between feasible-set rankings, plan §3.5) is Phase-1 check
 P5 and is reported in `notes/decision_phase1.md`, not here.
+
+## 2a. Boundary probes (Phase 1, plan §6)
+
+Bisection probes that refine the slip and damage boundaries in F (and s_rec in s) are stored under `probes/`, keyed by (combination, s_idx, probe_idx), with the same branch fields as §1.2 and R repeats each. They are analysis data: they never enter an interaction group, are never used for training, and inherit the split of their combination (G3).
 
 ## 3. Splits (grouped, never by frame)
 
@@ -107,6 +122,7 @@ data/<version>/
 │   ├── obs/                (images, proprioception at the decision chunk)
 │   ├── branch_state.npz
 │   └── branches/<F_idx>_<s_idx>_<rep>.npz   (§1.2 fields)
+├── probes/<combo>/<s_idx>/<probe_idx>/   (§2a; analysis only)
 └── splits.json
 ```
 
