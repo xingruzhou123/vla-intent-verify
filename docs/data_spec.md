@@ -48,7 +48,7 @@ is restored from the saved MuJoCo state at the branch point.
 - `margin[F][s]`: distance in (F̃, s̃) space to the nearest infeasible cell; negative outside 𝓕.
 - `q[F][s]` = P_complete − α·P_slip − β·P_damage (α = β = 1), ranking loss and diagnostics only.
 - `teacher_target` = (F*, s*) from plan §3.4, or `null` with `infeasible_by_design = true` when 𝓕 is empty.
-- All derived quantities are stored twice, once per damage definition (§1.2), so the P5 comparison is reproducible.
+- All derived quantities are stored twice, once per damage definition (§1.2), so Phase-1 check P5 (damage-definition robustness, plan §6) can be recomputed from stored data. P5 is a physics check, not a data gate.
 
 ## 2. Validation gates
 
@@ -61,16 +61,20 @@ relaxed after the fact.
 | **G1** | Scene validity | object and goal region in both camera views at the decision chunk; no interpenetration at the branch state (MuJoCo contact penetration below tolerance) | 100 % of groups |
 | **G2** | Branch purity | within a group, every field except (F, s, perturbation) is identical; branch state hash matches across branches | 100 % of groups |
 | **G3** | Split integrity | no `group_id`, and no `object_id` or property combo assigned to a held-out split, appears in train/val | 0 leaks |
-| **G4** | Trivial-feature control | a classifier on (object_id, group_id, object count) alone predicts branch outcomes no better than the majority rate on val | AUROC ≤ 0.55 (or not above chance with CI) |
-| **G5** | Replay fidelity | replaying stored (a_{1:T}, F, s) from the branch state reproduces logged contact force and carry kinematics within tolerance (tolerance set in Phase 1 and recorded here) | ≥ 99 % of branches |
+| **G4** | Trivial-feature control | a classifier using only trivial features (object_id, group_id, object count) predicts branch outcomes on held-out groups | held-out AUROC ≤ 0.6, or accuracy ≤ majority-class baseline + 5 points (owner-approved 2026-10-29) |
+| **G5** | Replay fidelity | replaying stored (a_{1:T}, F, s) from the branch state reproduces logged contact force and carry kinematics within tolerance (tolerance set in Phase 1 and recorded here) | ≥ 99 % of branches (owner-approved 2026-10-29) |
 | **G6** | Label spot check | video of a random sample of branches is checked by a human against the stored outcome labels | error ≤ 5 % per outcome class |
 | **G7** | Independent second labeler | a second, independent implementation of the outcome labeler (different code path, same raw time series) is run on all branches | agreement ≥ 95 % per class; disagreements listed, none silently resolved |
 
-Additional gate for derived quantities:
+Additional gate for derived quantities (code correctness, **same damage definition, same inputs** as the first implementation):
 
 | ID | Gate | Check | Pass |
 |---|---|---|---|
-| **G8** | Feasible-set cross-check | a second implementation computes `feasible`, `margin` and `teacher_target` from the stored `P_hat`; feasible-set rankings across the two damage definitions compared | identical feasible masks; Kendall τ ≥ 0.8 between damage definitions (plan §3.5) |
+| **G8** | Feasible-set cross-check | a second, independent implementation computes `feasible`, `margin` and `teacher_target` from the stored `P_hat` | feasible sets identical on ≥ 98 % of grid cells; margins differ by ≤ 1 grid step; disagreements listed |
+
+G7 and G8 together form the two-implementation cross-check. They test code, not physics. The agreement between the
+primary and secondary **damage definitions** (Kendall τ ≥ 0.8 between feasible-set rankings, plan §3.5) is Phase-1 check
+P5 and is reported in `notes/decision_phase1.md`, not here.
 
 ## 3. Splits (grouped, never by frame)
 

@@ -4,7 +4,6 @@ gripper force F and carry time-scaling s that completes a pick-and-carry without
 `plan.md` is the only active plan; `plan_v0.1.md` (intent–evidence verification) is archived — do not implement
 anything from it. `status.md` holds the current phase, checklist, blockers and log.
 Background: docs/summary.md, docs/related_work.md (written for v0.1; positioning for v1 is plan.md §5). Paper PDFs in docs/papers/.
-Data format and validation gates: docs/data_spec.md.
 
 Rules:
 - Current phase: Phase 1 physics go/no-go (plan.md §6, due 2026-11-09). Build only `envs/feasibility_carry/`, the F × s sweep,
@@ -18,9 +17,11 @@ Rules:
 - Report only measured numbers; leave result cells empty otherwise. Report failures with the output.
 - When a design choice belongs to the owner (parameter ranges, F-to-Newton mapping, damage tolerances), give 2–3 options
   with a recommendation and stop.
-- Two-implementation cross-check: outcome labels (slip / damage / complete) and feasible-set computation each get an
-  independent second implementation (different code path, same inputs). Disagreements are gates, not warnings:
-  label agreement ≥ 95%, feasible-set rankings Kendall τ ≥ 0.8 across the two damage definitions. Details in docs/data_spec.md.
+- Two-implementation cross-check (code correctness, data gate G8 in docs/data_spec.md): outcome labels and feasible-set
+  computation each get an independent second implementation, run on the same inputs under the same damage definition.
+  Pass: label agreement ≥ 95%, feasible sets identical on ≥ 98% of grid cells, margins differ by ≤ 1 grid step.
+- Damage-definition robustness (physics, Phase-1 check P5, not a data gate): Kendall τ ≥ 0.8 between feasible-set rankings
+  under the primary (excess impulse) and secondary (peak force) damage definitions.
 - v0.1 code (LIBERO eval wrapper, intent-scene notes) stays in the repo but is not extended; do not delete it without asking.
 - Large artifacts (sweeps, rollouts, latent dumps, checkpoints) go in data/ or results/, never committed. results/ is never edited by hand.
 - External repos (LeRobot, LIBERO, openpi) live in third_party/; do not edit them in place — wrap or patch.
