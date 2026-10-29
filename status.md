@@ -42,7 +42,7 @@ Code written for these items stays in the repo but is not extended. Do not delet
 ## 4. Phase 1 checklist (due 2026-11-09)
 
 - [x] Commit the uncommitted Week-1 files from v0.1 (environment, hooks) before starting new work — done 2026-10-26 (7b96be5); v0.1 plan and notes archived 2026-10-29
-- [ ] Rewrite `CLAUDE.md` and write `docs/data_spec.md` for the new plan
+- [x] Rewrite `CLAUDE.md` and write `docs/data_spec.md` for the new plan — done 2026-10-29 (no earlier copies found; data spec written fresh from plan §7)
 - [ ] `envs/feasibility_carry/`: pick-and-carry task on the robosuite/MuJoCo Panda
   - [ ] force-limited gripper (`forcerange` = F)
   - [ ] parametric object (m, μ, fragility)
@@ -68,3 +68,4 @@ Code written for these items stays in the repo but is not extended. Do not delet
 | 2026-09-23 | v0.1 plan (intent–evidence verification) written |
 | Late Sep → Oct | Week-1 environment set up: venv, LIBERO, π0.5 checkpoints, hooks verified; tokenizer licence blocking |
 | 2026-10-29 | Switched to `plan.md` (Counterfactual Feasibility Distillation); v0.1 archived as `plan_v0.1.md`; status refreshed |
+| 2026-10-29 | Housekeeping done: v0.1 materials archived (e8145f8), plan switch committed (bcaa0f4), `CLAUDE.md` rewritten and `docs/data_spec.md` written for interaction groups. Tokenizer still gated (owner accepting licence). Next: Phase 1 `envs/feasibility_carry/` |
