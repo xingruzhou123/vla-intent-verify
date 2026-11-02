@@ -1,0 +1,145 @@
+[light_normal_balanced_0] env built in 2.5 s; m=0.5215 mu=0.3822 d=0.0
+  r=0 lift_F7.29_h1cm    rep=0: wall 5.58s sim 5.40s rows 2700 | grip (7.3,7.3)N N50=7.6 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.2mm load_hat=5.4N | restore_exact=True
+  r=0 lift_F7.29_h1cm    rep=1: wall 4.92s sim 5.40s rows 2700 | grip (7.3,7.3)N N50=7.6 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=1.0mm load_hat=5.1N | restore_exact=True
+  r=0 lift_F7.29_h1cm    rep=2: wall 2.01s sim 5.40s rows 2700 | grip (7.3,7.3)N N50=7.6 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.5mm load_hat=5.2N | restore_exact=True
+  r=0 lift_F10.628_h1cm  rep=0: wall 5.38s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.0 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.1mm load_hat=5.2N | restore_exact=True
+  r=0 lift_F10.628_h1cm  rep=1: wall 6.55s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.0 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.4mm load_hat=4.2N | restore_exact=True
+  r=0 lift_F10.628_h1cm  rep=2: wall 9.14s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.0 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.3mm load_hat=4.0N | restore_exact=True
+  r=0 lift_F15.494_h1cm  rep=0: wall 2.18s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.8 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.1mm load_hat=4.7N | restore_exact=True
+  r=0 lift_F15.494_h1cm  rep=1: wall 7.78s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.8 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.1mm load_hat=3.5N | restore_exact=True
+  r=0 lift_F15.494_h1cm  rep=2: wall 4.53s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.8 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=1.0mm load_hat=4.5N | restore_exact=True
+  r=0 lift_F15.494_h2cm  rep=0: wall 5.71s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.8 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=19.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.4mm load_hat=4.2N | restore_exact=True
+  r=0 lift_F15.494_h2cm  rep=1: wall 5.43s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.8 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=19.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.3mm load_hat=4.6N | restore_exact=True
+  r=0 lift_F15.494_h2cm  rep=2: wall 11.07s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.8 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=19.4mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=1.1mm load_hat=5.8N | restore_exact=True
+  r=0 squeeze_F10.628    rep=0: wall 1.09s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.6 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F10.628    rep=1: wall 3.22s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.6 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F10.628    rep=2: wall 4.19s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.6 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F15.494    rep=0: wall 5.36s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F15.494    rep=1: wall 2.63s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F15.494    rep=2: wall 2.82s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 C1 replay F=22.6 s=1.02: wall 3.11s rows 2700 (stored 2700) max|diff| vs stored = 0.0 labels_match=True restore_exact=True
+  r=0 C3 lift_F15.494_h1cm then F=22.6 s=1.02: wall 12.08s (probe 5.13 + carry 6.92) | carry labels slip=0 done=1 vs C0 slip=0 done=1; slip 0.6 vs 0.6 mm; xy err 4 vs 4 mm
+  r=1 lift_F7.29_h1cm    rep=0: wall 6.99s sim 5.40s rows 2700 | grip (7.3,7.2)N N50=7.6 dmg(frag/rig)=0/0 | held=1 slip=0.3mm zgain=9.2mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.2mm load_hat=5.3N | restore_exact=True
+  r=1 lift_F7.29_h1cm    rep=1: wall 8.50s sim 5.40s rows 2700 | grip (7.3,7.2)N N50=7.6 dmg(frag/rig)=0/0 | held=1 slip=0.3mm zgain=9.2mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=1.0mm load_hat=5.5N | restore_exact=True
+  r=1 lift_F7.29_h1cm    rep=2: wall 6.75s sim 5.40s rows 2700 | grip (7.3,7.2)N N50=7.6 dmg(frag/rig)=0/0 | held=1 slip=0.3mm zgain=9.2mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=1.0mm load_hat=6.1N | restore_exact=True
+  r=1 lift_F10.628_h1cm  rep=0: wall 7.44s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.0 dmg(frag/rig)=0/0 | held=1 slip=0.2mm zgain=9.3mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.8mm load_hat=4.6N | restore_exact=True
+  r=1 lift_F10.628_h1cm  rep=1: wall 5.23s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.0 dmg(frag/rig)=0/0 | held=1 slip=0.2mm zgain=9.3mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.0mm load_hat=5.3N | restore_exact=True
+  r=1 lift_F10.628_h1cm  rep=2: wall 8.70s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.0 dmg(frag/rig)=0/0 | held=1 slip=0.2mm zgain=9.3mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.3mm load_hat=3.4N | restore_exact=True
+  r=1 lift_F15.494_h1cm  rep=0: wall 7.61s sim 5.40s rows 2700 | grip (15.4,15.4)N N50=15.9 dmg(frag/rig)=0/0 | held=1 slip=0.1mm zgain=9.3mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.2mm load_hat=5.7N | restore_exact=True
+  r=1 lift_F15.494_h1cm  rep=1: wall 2.30s sim 5.40s rows 2700 | grip (15.4,15.4)N N50=15.9 dmg(frag/rig)=0/0 | held=1 slip=0.1mm zgain=9.3mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.3mm load_hat=4.4N | restore_exact=True
+  r=1 lift_F15.494_h1cm  rep=2: wall 7.40s sim 5.40s rows 2700 | grip (15.4,15.4)N N50=15.9 dmg(frag/rig)=0/0 | held=1 slip=0.1mm zgain=9.3mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.6mm load_hat=5.3N | restore_exact=True
+  r=1 lift_F15.494_h2cm  rep=0: wall 5.54s sim 5.40s rows 2700 | grip (15.4,15.4)N N50=15.9 dmg(frag/rig)=0/0 | held=1 slip=0.1mm zgain=19.3mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.1mm load_hat=6.2N | restore_exact=True
+  r=1 lift_F15.494_h2cm  rep=1: wall 10.15s sim 5.40s rows 2700 | grip (15.4,15.4)N N50=15.9 dmg(frag/rig)=0/0 | held=1 slip=0.1mm zgain=19.3mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.1mm load_hat=5.2N | restore_exact=True
+  r=1 lift_F15.494_h2cm  rep=2: wall 5.22s sim 5.40s rows 2700 | grip (15.4,15.4)N N50=15.9 dmg(frag/rig)=0/0 | held=1 slip=0.1mm zgain=19.3mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.3mm load_hat=5.9N | restore_exact=True
+  r=1 squeeze_F10.628    rep=0: wall 2.16s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.6 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F10.628    rep=1: wall 1.49s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.6 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F10.628    rep=2: wall 3.00s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.6 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F15.494    rep=0: wall 4.48s sim 3.15s rows 1575 | grip (15.4,15.4)N N50=15.4 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F15.494    rep=1: wall 2.10s sim 3.15s rows 1575 | grip (15.4,15.4)N N50=15.4 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F15.494    rep=2: wall 5.14s sim 3.15s rows 1575 | grip (15.4,15.4)N N50=15.4 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 C1 replay F=22.6 s=1.02: wall 8.53s rows 2700 (stored 2700) max|diff| vs stored = 0.0 labels_match=True restore_exact=True
+  r=1 C1 replay without re-applying mu_scale=1.0031: max|diff| vs stored = 2.0482635498046875
+  r=1 C3 lift_F15.494_h1cm then F=22.6 s=1.02: wall 10.00s (probe 3.07 + carry 6.90) | carry labels slip=0 done=1 vs C0 slip=0 done=1; slip 0.6 vs 0.6 mm; xy err 4 vs 4 mm
+  r=2 lift_F7.29_h1cm    rep=0: wall 5.36s sim 5.40s rows 2700 | grip (7.2,7.2)N N50=7.6 dmg(frag/rig)=0/0 | held=1 slip=0.7mm zgain=8.8mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=1.1mm load_hat=4.5N | restore_exact=True
+  r=2 lift_F7.29_h1cm    rep=1: wall 6.16s sim 5.40s rows 2700 | grip (7.2,7.2)N N50=7.6 dmg(frag/rig)=0/0 | held=1 slip=0.7mm zgain=8.8mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.4mm load_hat=5.3N | restore_exact=True
+  r=2 lift_F7.29_h1cm    rep=2: wall 2.51s sim 5.40s rows 2700 | grip (7.2,7.2)N N50=7.6 dmg(frag/rig)=0/0 | held=1 slip=0.7mm zgain=8.8mm load=5.1N shift=0.4mm | obs held_hat=1 slip_hat=0.6mm load_hat=5.4N | restore_exact=True
+  r=2 lift_F10.628_h1cm  rep=0: wall 5.21s sim 5.40s rows 2700 | grip (10.5,10.5)N N50=11.1 dmg(frag/rig)=0/0 | held=1 slip=0.4mm zgain=9.0mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.6mm load_hat=5.6N | restore_exact=True
+  r=2 lift_F10.628_h1cm  rep=1: wall 4.13s sim 5.40s rows 2700 | grip (10.5,10.5)N N50=11.1 dmg(frag/rig)=0/0 | held=1 slip=0.4mm zgain=9.0mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.4mm load_hat=5.7N | restore_exact=True
+  r=2 lift_F10.628_h1cm  rep=2: wall 5.97s sim 5.40s rows 2700 | grip (10.5,10.5)N N50=11.1 dmg(frag/rig)=0/0 | held=1 slip=0.4mm zgain=9.0mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.6mm load_hat=4.4N | restore_exact=True
+  r=2 lift_F15.494_h1cm  rep=0: wall 2.90s sim 5.40s rows 2700 | grip (15.3,15.3)N N50=16.0 dmg(frag/rig)=0/0 | held=1 slip=0.3mm zgain=9.2mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.4mm load_hat=7.1N | restore_exact=True
+  r=2 lift_F15.494_h1cm  rep=1: wall 9.10s sim 5.40s rows 2700 | grip (15.3,15.3)N N50=16.0 dmg(frag/rig)=0/0 | held=1 slip=0.3mm zgain=9.2mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.0mm load_hat=5.1N | restore_exact=True
+  r=2 lift_F15.494_h1cm  rep=2: wall 4.10s sim 5.40s rows 2700 | grip (15.3,15.3)N N50=16.0 dmg(frag/rig)=0/0 | held=1 slip=0.3mm zgain=9.2mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.1mm load_hat=6.6N | restore_exact=True
+  r=2 lift_F15.494_h2cm  rep=0: wall 5.43s sim 5.40s rows 2700 | grip (15.3,15.3)N N50=16.0 dmg(frag/rig)=0/0 | held=1 slip=0.2mm zgain=19.2mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=1.5mm load_hat=6.2N | restore_exact=True
+  r=2 lift_F15.494_h2cm  rep=1: wall 5.29s sim 5.40s rows 2700 | grip (15.3,15.3)N N50=16.0 dmg(frag/rig)=0/0 | held=1 slip=0.2mm zgain=19.2mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.1mm load_hat=4.8N | restore_exact=True
+  r=2 lift_F15.494_h2cm  rep=2: wall 6.03s sim 5.40s rows 2700 | grip (15.3,15.3)N N50=16.0 dmg(frag/rig)=0/0 | held=1 slip=0.2mm zgain=19.2mm load=5.1N shift=0.3mm | obs held_hat=1 slip_hat=0.1mm load_hat=4.9N | restore_exact=True
+  r=2 squeeze_F10.628    rep=0: wall 1.39s sim 3.15s rows 1575 | grip (10.5,10.5)N N50=10.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F10.628    rep=1: wall 0.77s sim 3.15s rows 1575 | grip (10.5,10.5)N N50=10.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F10.628    rep=2: wall 7.39s sim 3.15s rows 1575 | grip (10.5,10.5)N N50=10.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F15.494    rep=0: wall 4.14s sim 3.15s rows 1575 | grip (15.3,15.3)N N50=15.3 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F15.494    rep=1: wall 4.38s sim 3.15s rows 1575 | grip (15.3,15.3)N N50=15.3 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F15.494    rep=2: wall 3.55s sim 3.15s rows 1575 | grip (15.3,15.3)N N50=15.3 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 C1 replay F=22.6 s=1.02: wall 6.45s rows 2700 (stored 2700) max|diff| vs stored = 0.0 labels_match=True restore_exact=True
+  r=2 C1 replay without re-applying mu_scale=1.0284: max|diff| vs stored = 26.182661056518555
+  r=2 C3 lift_F15.494_h1cm then F=22.6 s=1.02: wall 9.48s (probe 7.18 + carry 2.30) | carry labels slip=0 done=1 vs C0 slip=0 done=1; slip 0.6 vs 0.7 mm; xy err 4 vs 4 mm
+[heavy_slippery_balanced_0] env built in 1.6 s; m=1.4523 mu=0.193 d=0.0
+  r=0 lift_F7.29_h1cm    rep=0: wall 7.14s sim 5.40s rows 2700 | grip (7.3,7.3)N N50=7.5 dmg(frag/rig)=0/0 | held=0 slip=9.7mm zgain=0.0mm load=2.8N shift=0.2mm | obs held_hat=0 slip_hat=10.3mm load_hat=3.2N | restore_exact=True
+  r=0 lift_F7.29_h1cm    rep=1: wall 4.56s sim 5.40s rows 2700 | grip (7.3,7.3)N N50=7.5 dmg(frag/rig)=0/0 | held=0 slip=9.7mm zgain=0.0mm load=2.8N shift=0.2mm | obs held_hat=0 slip_hat=11.1mm load_hat=3.5N | restore_exact=True
+  r=0 lift_F7.29_h1cm    rep=2: wall 6.05s sim 5.40s rows 2700 | grip (7.3,7.3)N N50=7.5 dmg(frag/rig)=0/0 | held=0 slip=9.7mm zgain=0.0mm load=2.8N shift=0.2mm | obs held_hat=0 slip_hat=10.3mm load_hat=3.9N | restore_exact=True
+  r=0 lift_F10.628_h1cm  rep=0: wall 6.22s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=10.8 dmg(frag/rig)=0/0 | held=0 slip=9.5mm zgain=0.0mm load=4.1N shift=0.0mm | obs held_hat=0 slip_hat=9.1mm load_hat=3.9N | restore_exact=True
+  r=0 lift_F10.628_h1cm  rep=1: wall 2.47s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=10.8 dmg(frag/rig)=0/0 | held=0 slip=9.5mm zgain=0.0mm load=4.1N shift=0.0mm | obs held_hat=0 slip_hat=9.2mm load_hat=3.4N | restore_exact=True
+  r=0 lift_F10.628_h1cm  rep=2: wall 8.69s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=10.8 dmg(frag/rig)=0/0 | held=0 slip=9.5mm zgain=0.0mm load=4.1N shift=0.0mm | obs held_hat=0 slip_hat=8.2mm load_hat=3.8N | restore_exact=True
+  r=0 lift_F15.494_h1cm  rep=0: wall 7.00s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=9.4mm zgain=0.0mm load=6.0N shift=0.5mm | obs held_hat=0 slip_hat=9.0mm load_hat=6.9N | restore_exact=True
+  r=0 lift_F15.494_h1cm  rep=1: wall 2.58s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=9.4mm zgain=0.0mm load=6.0N shift=0.5mm | obs held_hat=0 slip_hat=8.6mm load_hat=5.9N | restore_exact=True
+  r=0 lift_F15.494_h1cm  rep=2: wall 7.50s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=9.4mm zgain=0.0mm load=6.0N shift=0.5mm | obs held_hat=0 slip_hat=8.8mm load_hat=5.8N | restore_exact=True
+  r=0 lift_F15.494_h2cm  rep=0: wall 4.35s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=19.4mm zgain=0.0mm load=5.9N shift=0.1mm | obs held_hat=0 slip_hat=18.0mm load_hat=6.0N | restore_exact=True
+  r=0 lift_F15.494_h2cm  rep=1: wall 6.57s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=19.4mm zgain=0.0mm load=5.9N shift=0.1mm | obs held_hat=0 slip_hat=19.5mm load_hat=6.7N | restore_exact=True
+  r=0 lift_F15.494_h2cm  rep=2: wall 5.49s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=19.4mm zgain=0.0mm load=5.9N shift=0.1mm | obs held_hat=0 slip_hat=19.8mm load_hat=6.0N | restore_exact=True
+  r=0 squeeze_F10.628    rep=0: wall 4.84s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.7 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F10.628    rep=1: wall 2.53s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.7 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F10.628    rep=2: wall 2.79s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.7 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F15.494    rep=0: wall 3.69s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F15.494    rep=1: wall 4.67s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 squeeze_F15.494    rep=2: wall 6.85s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=0 C1 replay F=22.6 s=1.02: wall 3.60s rows 2700 (stored 2700) max|diff| vs stored = 0.0 labels_match=True restore_exact=True
+  r=0 C3 lift_F15.494_h1cm then F=22.6 s=1.02: wall 15.34s (probe 11.43 + carry 3.87) | carry labels slip=1 done=0 vs C0 slip=1 done=0; slip 122.9 vs 122.9 mm; xy err 301 vs 300 mm
+  r=1 lift_F7.29_h1cm    rep=0: wall 2.87s sim 5.40s rows 2700 | grip (7.3,7.3)N N50=7.5 dmg(frag/rig)=0/0 | held=0 slip=9.7mm zgain=0.0mm load=2.8N shift=0.2mm | obs held_hat=0 slip_hat=9.4mm load_hat=3.3N | restore_exact=True
+  r=1 lift_F7.29_h1cm    rep=1: wall 6.89s sim 5.40s rows 2700 | grip (7.3,7.3)N N50=7.5 dmg(frag/rig)=0/0 | held=0 slip=9.7mm zgain=0.0mm load=2.8N shift=0.2mm | obs held_hat=0 slip_hat=10.1mm load_hat=3.2N | restore_exact=True
+  r=1 lift_F7.29_h1cm    rep=2: wall 5.92s sim 5.40s rows 2700 | grip (7.3,7.3)N N50=7.5 dmg(frag/rig)=0/0 | held=0 slip=9.7mm zgain=0.0mm load=2.8N shift=0.2mm | obs held_hat=0 slip_hat=10.0mm load_hat=2.6N | restore_exact=True
+  r=1 lift_F10.628_h1cm  rep=0: wall 2.14s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=10.9 dmg(frag/rig)=0/0 | held=0 slip=9.5mm zgain=0.0mm load=4.1N shift=0.2mm | obs held_hat=0 slip_hat=9.7mm load_hat=4.8N | restore_exact=True
+  r=1 lift_F10.628_h1cm  rep=1: wall 2.36s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=10.9 dmg(frag/rig)=0/0 | held=0 slip=9.5mm zgain=0.0mm load=4.1N shift=0.2mm | obs held_hat=0 slip_hat=9.3mm load_hat=4.1N | restore_exact=True
+  r=1 lift_F10.628_h1cm  rep=2: wall 1.18s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=10.9 dmg(frag/rig)=0/0 | held=0 slip=9.5mm zgain=0.0mm load=4.1N shift=0.2mm | obs held_hat=0 slip_hat=9.6mm load_hat=5.3N | restore_exact=True
+  r=1 lift_F15.494_h1cm  rep=0: wall 9.88s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=9.4mm zgain=0.0mm load=6.0N shift=0.5mm | obs held_hat=0 slip_hat=10.0mm load_hat=6.5N | restore_exact=True
+  r=1 lift_F15.494_h1cm  rep=1: wall 6.69s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=9.4mm zgain=0.0mm load=6.0N shift=0.5mm | obs held_hat=0 slip_hat=9.9mm load_hat=4.6N | restore_exact=True
+  r=1 lift_F15.494_h1cm  rep=2: wall 3.85s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=9.4mm zgain=0.0mm load=6.0N shift=0.5mm | obs held_hat=0 slip_hat=8.6mm load_hat=6.0N | restore_exact=True
+  r=1 lift_F15.494_h2cm  rep=0: wall 3.88s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=19.4mm zgain=0.0mm load=5.9N shift=0.4mm | obs held_hat=0 slip_hat=18.8mm load_hat=5.5N | restore_exact=True
+  r=1 lift_F15.494_h2cm  rep=1: wall 8.55s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=19.4mm zgain=0.0mm load=5.9N shift=0.4mm | obs held_hat=0 slip_hat=19.6mm load_hat=6.3N | restore_exact=True
+  r=1 lift_F15.494_h2cm  rep=2: wall 8.27s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=19.4mm zgain=0.0mm load=5.9N shift=0.4mm | obs held_hat=0 slip_hat=19.1mm load_hat=6.4N | restore_exact=True
+  r=1 squeeze_F10.628    rep=0: wall 3.86s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.7 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F10.628    rep=1: wall 4.90s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.7 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F10.628    rep=2: wall 4.49s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.7 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F15.494    rep=0: wall 5.45s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F15.494    rep=1: wall 3.19s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 squeeze_F15.494    rep=2: wall 5.12s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=1 C1 replay F=22.6 s=1.02: wall 3.78s rows 2700 (stored 2700) max|diff| vs stored = 0.0 labels_match=True restore_exact=True
+  r=1 C1 replay without re-applying mu_scale=1.0031: max|diff| vs stored = 77.36360931396484
+  r=1 C3 lift_F15.494_h1cm then F=22.6 s=1.02: wall 15.85s (probe 9.74 + carry 6.10) | carry labels slip=1 done=0 vs C0 slip=1 done=0; slip 122.9 vs 122.9 mm; xy err 301 vs 301 mm
+  r=2 lift_F7.29_h1cm    rep=0: wall 10.05s sim 5.40s rows 2700 | grip (7.2,7.2)N N50=7.5 dmg(frag/rig)=0/0 | held=0 slip=9.7mm zgain=0.0mm load=2.9N shift=0.1mm | obs held_hat=0 slip_hat=10.3mm load_hat=3.7N | restore_exact=True
+  r=2 lift_F7.29_h1cm    rep=1: wall 6.71s sim 5.40s rows 2700 | grip (7.2,7.2)N N50=7.5 dmg(frag/rig)=0/0 | held=0 slip=9.7mm zgain=0.0mm load=2.9N shift=0.1mm | obs held_hat=0 slip_hat=8.7mm load_hat=3.6N | restore_exact=True
+  r=2 lift_F7.29_h1cm    rep=2: wall 6.89s sim 5.40s rows 2700 | grip (7.2,7.2)N N50=7.5 dmg(frag/rig)=0/0 | held=0 slip=9.7mm zgain=0.0mm load=2.9N shift=0.1mm | obs held_hat=0 slip_hat=10.2mm load_hat=2.3N | restore_exact=True
+  r=2 lift_F10.628_h1cm  rep=0: wall 9.28s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=10.9 dmg(frag/rig)=0/0 | held=0 slip=9.5mm zgain=0.0mm load=4.2N shift=0.2mm | obs held_hat=0 slip_hat=9.2mm load_hat=4.8N | restore_exact=True
+  r=2 lift_F10.628_h1cm  rep=1: wall 7.65s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=10.9 dmg(frag/rig)=0/0 | held=0 slip=9.5mm zgain=0.0mm load=4.2N shift=0.2mm | obs held_hat=0 slip_hat=9.6mm load_hat=4.2N | restore_exact=True
+  r=2 lift_F10.628_h1cm  rep=2: wall 11.69s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=10.9 dmg(frag/rig)=0/0 | held=0 slip=9.5mm zgain=0.0mm load=4.2N shift=0.2mm | obs held_hat=0 slip_hat=10.4mm load_hat=4.6N | restore_exact=True
+  r=2 lift_F15.494_h1cm  rep=0: wall 9.02s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=9.3mm zgain=0.0mm load=6.1N shift=0.3mm | obs held_hat=0 slip_hat=9.5mm load_hat=6.4N | restore_exact=True
+  r=2 lift_F15.494_h1cm  rep=1: wall 10.31s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=9.3mm zgain=0.0mm load=6.1N shift=0.3mm | obs held_hat=0 slip_hat=9.3mm load_hat=5.6N | restore_exact=True
+  r=2 lift_F15.494_h1cm  rep=2: wall 11.04s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=9.3mm zgain=0.0mm load=6.1N shift=0.3mm | obs held_hat=0 slip_hat=9.1mm load_hat=5.2N | restore_exact=True
+  r=2 lift_F15.494_h2cm  rep=0: wall 8.38s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=19.3mm zgain=0.0mm load=6.1N shift=0.4mm | obs held_hat=0 slip_hat=19.4mm load_hat=6.0N | restore_exact=True
+  r=2 lift_F15.494_h2cm  rep=1: wall 5.99s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=19.3mm zgain=0.0mm load=6.1N shift=0.4mm | obs held_hat=0 slip_hat=19.9mm load_hat=7.2N | restore_exact=True
+  r=2 lift_F15.494_h2cm  rep=2: wall 6.30s sim 5.40s rows 2700 | grip (15.5,15.5)N N50=15.9 dmg(frag/rig)=0/0 | held=0 slip=19.3mm zgain=0.0mm load=6.1N shift=0.4mm | obs held_hat=0 slip_hat=19.1mm load_hat=6.5N | restore_exact=True
+  r=2 squeeze_F10.628    rep=0: wall 4.96s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.7 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F10.628    rep=1: wall 6.69s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.7 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F10.628    rep=2: wall 1.68s sim 3.15s rows 1575 | grip (10.6,10.6)N N50=10.7 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F15.494    rep=0: wall 2.39s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F15.494    rep=1: wall 0.66s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 squeeze_F15.494    rep=2: wall 1.63s sim 3.15s rows 1575 | grip (15.5,15.5)N N50=15.5 dmg(frag/rig)=0/0 | shift=0.1mm | restore_exact=True
+  r=2 C1 replay F=22.6 s=1.02: wall 7.44s rows 2700 (stored 2700) max|diff| vs stored = 0.0 labels_match=True restore_exact=True
+  r=2 C1 replay without re-applying mu_scale=1.0284: max|diff| vs stored = 74.80709552764893
+  r=2 C3 lift_F15.494_h1cm then F=22.6 s=1.02: wall 12.88s (probe 5.09 + carry 7.71) | carry labels slip=1 done=0 vs C0 slip=1 done=0; slip 123.0 vs 123.0 mm; xy err 300 vs 300 mm
+[medium_normal_balanced_1] env built in 1.5 s; m=0.8967 mu=0.4388 d=0.0
+  r=0 lift_F10.628_h1cm_boundary rep=0: wall 8.71s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.2 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.0mm load=8.8N shift=0.8mm | obs held_hat=1 slip_hat=0.5mm load_hat=8.0N | restore_exact=True
+  r=0 lift_F10.628_h1cm_boundary rep=1: wall 5.78s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.2 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.0mm load=8.8N shift=0.8mm | obs held_hat=1 slip_hat=0.3mm load_hat=8.3N | restore_exact=True
+  r=0 lift_F10.628_h1cm_boundary rep=2: wall 7.66s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.2 dmg(frag/rig)=0/0 | held=1 slip=0.0mm zgain=9.0mm load=8.8N shift=0.8mm | obs held_hat=1 slip_hat=0.1mm load_hat=10.0N | restore_exact=True
+  r=0 C1 replay F=22.6 s=1.02: wall 6.48s rows 2700 (stored 2700) max|diff| vs stored = 0.0 labels_match=True restore_exact=True
+  r=0 C3 lift_F15.494_h1cm then F=22.6 s=1.02: wall 15.94s (probe 9.06 + carry 6.75) | carry labels slip=0 done=1 vs C0 slip=0 done=1; slip 0.6 vs 0.6 mm; xy err 5 vs 5 mm
+  r=1 lift_F10.628_h1cm_boundary rep=0: wall 10.72s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.1 dmg(frag/rig)=0/0 | held=1 slip=0.5mm zgain=8.5mm load=8.8N shift=0.8mm | obs held_hat=1 slip_hat=0.9mm load_hat=9.2N | restore_exact=True
+  r=1 lift_F10.628_h1cm_boundary rep=1: wall 6.74s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.1 dmg(frag/rig)=0/0 | held=1 slip=0.5mm zgain=8.5mm load=8.8N shift=0.8mm | obs held_hat=1 slip_hat=0.5mm load_hat=9.0N | restore_exact=True
+  r=1 lift_F10.628_h1cm_boundary rep=2: wall 5.08s sim 5.40s rows 2700 | grip (10.6,10.6)N N50=11.1 dmg(frag/rig)=0/0 | held=1 slip=0.5mm zgain=8.5mm load=8.8N shift=0.8mm | obs held_hat=1 slip_hat=0.7mm load_hat=9.1N | restore_exact=True
+  r=1 C1 replay F=22.6 s=1.02: wall 5.74s rows 2700 (stored 2700) max|diff| vs stored = 0.0 labels_match=True restore_exact=True
+  r=1 C1 replay without re-applying mu_scale=1.0031: max|diff| vs stored = 22.3398380279541
+  r=1 C3 lift_F15.494_h1cm then F=22.6 s=1.02: wall 15.81s (probe 8.98 + carry 6.83) | carry labels slip=0 done=1 vs C0 slip=0 done=1; slip 0.6 vs 0.7 mm; xy err 5 vs 5 mm
+  r=2 lift_F10.628_h1cm_boundary rep=0: wall 6.44s sim 5.40s rows 2700 | grip (10.5,10.5)N N50=11.0 dmg(frag/rig)=0/0 | held=1 slip=0.9mm zgain=8.2mm load=8.8N shift=0.7mm | obs held_hat=1 slip_hat=1.4mm load_hat=9.0N | restore_exact=True
+  r=2 lift_F10.628_h1cm_boundary rep=1: wall 5.64s sim 5.40s rows 2700 | grip (10.5,10.5)N N50=11.0 dmg(frag/rig)=0/0 | held=1 slip=0.9mm zgain=8.2mm load=8.8N shift=0.7mm | obs held_hat=1 slip_hat=1.0mm load_hat=8.6N | restore_exact=True
+  r=2 lift_F10.628_h1cm_boundary rep=2: wall 6.40s sim 5.40s rows 2700 | grip (10.5,10.5)N N50=11.0 dmg(frag/rig)=0/0 | held=1 slip=0.9mm zgain=8.2mm load=8.8N shift=0.7mm | obs held_hat=1 slip_hat=1.4mm load_hat=9.3N | restore_exact=True
+  r=2 C1 replay F=22.6 s=1.02: wall 5.88s rows 2700 (stored 2700) max|diff| vs stored = 0.0 labels_match=True restore_exact=True
+  r=2 C1 replay without re-applying mu_scale=1.0284: max|diff| vs stored = 39.77546691894531
+  r=2 C3 lift_F15.494_h1cm then F=22.6 s=1.02: wall 17.41s (probe 7.15 + carry 10.25) | carry labels slip=0 done=1 vs C0 slip=0 done=1; slip 0.6 vs 0.8 mm; xy err 5 vs 6 mm
+done: 141 rows in 14.7 min wall; summary -> probing/results/smoke/summary.json
