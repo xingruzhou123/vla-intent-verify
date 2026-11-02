@@ -30,6 +30,42 @@ and statistically separated on most objects, but smaller than the frozen absolut
 Both independent-implementation gates (G7/G8) have not been run on this sweep; the verdict above rests on
 implementation A only.
 
+## Status after the owner's three items (2026-11-02, second pass)
+
+**P2 fails as frozen. P3 and P7, also predeclared, pass.** The owner will decide after items 1–3 below whether to keep
+the rule or override it with a documented rationale. No decision is taken in this record.
+
+1. **P6 label fix (label version 2, docs/data_spec.md §1.2).** `completed` is False after a drop regardless of where the
+   object lands, and the damage proxies stop at the drop onset (an object crushed between the closing fingers after it
+   fell is not grasp damage). All 23 535 branches were relabelled from the stored time series without re-simulation
+   (`envs/feasibility_carry/relabel.py`; version-1 files kept as `summary.labels_v1.json`), the baseline selections were
+   re-executed, and every check was re-evaluated (`results/phase1/full_v2/report.md`). **No verdict changes:** P1, P3, P4,
+   P5, P7 pass and P2 fails with identical numbers; P6 still fails, with 22 instead of 27 entries below 0.9 outside the
+   boundaries' uncertainty. The 5 removed entries were the drop-and-crush cells. Of the remaining 22, 18 are cells where
+   every repeat slipped but the object was not (or not always) dropped: it slid in the grasp, was released, and whether
+   it came to rest inside the 3 cm goal tolerance varied across repeats, so `completed` (geometric) disagrees. The other
+   4 are one cell of heavy_slippery_off-centre_1 (F = 48.0 N, s = 1.02; slip rate 0.8) that the refined boundary's
+   uncertainty does not cover. Whether `completed` should also be False after a slip that did not end in a drop is an
+   owner decision (it would make `completed` redundant with `physical_safe ∧ completed_geometric` and is not what item 1
+   specified); it is not applied.
+2. **G7 / G8 (implementation B, `envs/feasibility_carry/crosscheck_b.py`; runner `analysis/crosscheck_g7g8.py`;
+   `results/phase1/crosscheck_v1/report.md`).** Independent code path and numerics (hand-written quaternion algebra,
+   min-filter sustained peak, run-length lost-contact test, group-by rates, vectorised margin), same author. On the full
+   sweep: label agreement 100 % on all eight classes (23 535 branches and probes; 0 disagreements); feasible sets identical
+   on 9 216 of 9 216 grid cells (192 contexts), margins identical (max difference 0), teacher targets identical on 192 of
+   192 contexts. **G7 and G8 pass** against the frozen thresholds (≥ 95 %, ≥ 98 %, ≤ 1 grid step).
+3. **Coarse-information upper bound (`analysis/coarse_bound.py`; `results/phase1/coarse_bound_v1/report.md`).** Per
+   coarse cell (mass × friction × balance × fragility) × urgency, the single grid (F, s) maximising mean deadline-constrained
+   safe success over the cell's three training objects, evaluated on the held-out test object (noise-free bins; no new
+   simulation). On the 48 held-out contexts: infeasible-selection rate 5/35 = 0.143 on contexts with a non-empty grid
+   feasible set (0.375 over all 48, where the empty-truth contexts count as infeasible); mean success 0.625 against the
+   per-object oracle 0.729 and the best single fixed (F, s) 0.375. B5a-c / B5b-c executed infeasible-selection rates:
+   0.250 / 0.306 (ε-noisy bins). 24 of the 48 (cell, fragility, urgency) groups have at least one grid (F, s) feasible for
+   all four objects of the cell; 13 of the 24 fragile groups and 1 of the 24 rigid groups have none, and 11 groups have no
+   feasible object at all. Reading: coarse information alone recovers most of the oracle success (0.625 of 0.729) when
+   the per-cell lookup is fitted on the sweep; the room for a learned method over that lookup is the remaining 0.104 of
+   success and the 0.143 infeasible-selection rate, plus robustness to the ε-noise that the lookup here does not see.
+
 ## Frozen decisions and definitional changes (unchanged, recorded before the sweep)
 
 This section records the frozen decisions and definitional changes made before the sweep, each dated, so that nothing is

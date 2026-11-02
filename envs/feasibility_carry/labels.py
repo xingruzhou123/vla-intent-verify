@@ -21,6 +21,7 @@ KAPPA_PRIMARY = "k1"
 F_TOL_MULT = {"x0.75": 0.75, "x1": 1.0, "x1.25": 1.25}
 FRAGILITY = {"fragile": 20.0, "rigid": 50.0}   # N
 GOAL_XY_TOL, GOAL_Z_TOL = 0.03, 0.01          # m
+LABEL_VERSION = 2             # 1: 2026-10-29 definitions; 2: 2026-11-02 drop fix (completed = False after a drop; damage proxies evaluated only while held)
 CARRY_PHASES = (PH["lift"], PH["lateral"], PH["lower"], PH["settle"])
 LOAD_PHASES = (PH["ramp"], PH["hold"]) + CARRY_PHASES   # damage is evaluated over grasp + carry (never the release)
 
@@ -83,9 +84,21 @@ def slip(R, motion, pad_half, delta_slip=DELTA_SLIP, drop_dist=DROP_DIST, lost_c
     n = max(1, int(round(lost_contact_t / R.dt)))
     lost = len(no_contact) >= n and bool(np.lib.stride_tricks.sliding_window_view(no_contact, n).all(axis=1).any())
     dropped = bool(far.any() or lost)
+    # drop onset (absolute row index): first carry row with the centre beyond drop_dist, or the first row of the first
+    # lost-contact window of length n — label-definition fix of 2026-11-02 (docs/data_spec.md §1.2): after the drop the
+    # branch outcome is the drop; `completed` is False and the damage proxies stop accumulating
+    drop_idx = None
+    if dropped:
+        cands = []
+        if far.any():
+            cands.append(int(np.where(carry)[0][np.argmax(far)]))
+        if lost:
+            w = np.lib.stride_tricks.sliding_window_view(no_contact, n).all(axis=1)
+            cands.append(int(np.where(moving)[0][int(np.argmax(w))]))
+        drop_idx = min(cands)
     edge = tors * pad_half
     return {"slip_trans_max": float(trans.max()), "slip_torsion_max_deg": float(np.degrees(tors.max())),
-            "slip_edge_max": float(edge.max()), "dropped": dropped,
+            "slip_edge_max": float(edge.max()), "dropped": dropped, "drop_idx": drop_idx,
             "slip": bool(trans.max() > delta_slip or edge.max() > delta_slip or dropped)}
 
 
@@ -98,10 +111,14 @@ def sustained_peak(x, dt, t_win):
     return float(np.lib.stride_tricks.sliding_window_view(x, n).min(axis=1).max())
 
 
-def damage_scores(R, fragility=FRAGILITY):
+def damage_scores(R, fragility=FRAGILITY, drop_idx=None):
     """Per-pad load series over grasp + carry and the sustained-peak scores for every (t_win, κ).
-    Returns {"N": {t_win: score}, "L": {t_win: {κ: score}}, "impulse": fn(f_tol)}."""
+    Returns {"N": {t_win: score}, "L": {t_win: {κ: score}}, "impulse": fn(f_tol)}.
+    `drop_idx`: rows from the drop onset on are excluded (fix of 2026-11-02): a dropped object caught and crushed
+    between the closing fingers is a consequence of the drop, not grasp damage; the slip label already records it."""
     mask = np.isin(R["phase"], LOAD_PHASES)
+    if drop_idx is not None:
+        mask &= np.arange(len(mask)) < drop_idx
     dt = R.dt
     N = np.stack([R["f_left"][mask], R["f_right"][mask]], axis=1)
     Tt = np.stack([np.linalg.norm(R.vec("ft_left_", "yz")[mask], axis=1),
@@ -132,16 +149,18 @@ def damage_labels(scores, f_tol):
 
 
 # ----------------------------------------------------------------------------------------------- completion, time
-def completed(R, goal_pos, xy_tol=GOAL_XY_TOL, z_tol=GOAL_Z_TOL):
+def completed(R, goal_pos, xy_tol=GOAL_XY_TOL, z_tol=GOAL_Z_TOL, dropped=False):
     """Object rests in the goal region after release: xy within xy_tol of the goal, z within z_tol of the resting
-    height, in contact with the table. Geometric only; damage and slip enter through physical_safe."""
+    height, in contact with the table — and it was not dropped during the carry (fix of 2026-11-02: a dropped object
+    that happens to land in the goal region is not a completed carry). `completed_geometric` keeps the purely
+    geometric test for reference. Damage and slip enter through physical_safe."""
     last = R.a[-1]
     op = last[[R.c["obj_x"], R.c["obj_y"], R.c["obj_z"]]]
     xy = float(np.linalg.norm(op[:2] - goal_pos[:2]))
     dz = float(op[2] - goal_pos[2])
     on_table = bool(last[R.c["on_table"]] > 0.5)
-    return {"final_xy_err": xy, "final_z_err": dz,
-            "completed": bool(xy <= xy_tol and abs(dz) <= z_tol and on_table)}
+    geo = bool(xy <= xy_tol and abs(dz) <= z_tol and on_table)
+    return {"final_xy_err": xy, "final_z_err": dz, "completed_geometric": geo, "completed": bool(geo and not dropped)}
 
 
 def realized_accel(R, smooth=0.05):
@@ -169,11 +188,11 @@ def all_labels(rec, cols, goal_pos, pad_half, T_carry, T_max_levels, fragility=F
     R = Rec(rec, cols)
     motion = relative_motion(R)
     sl = slip(R, motion, pad_half)
-    cp = completed(R, goal_pos)
+    cp = completed(R, goal_pos, dropped=sl["dropped"])
     acc = realized_accel(R)
     acc.update({k + "_20ms": v for k, v in realized_accel(R, smooth=0.02).items()})
-    sc = damage_scores(R, fragility)
-    out = {**sl, **cp, **acc, "T_carry": float(T_carry),
+    sc = damage_scores(R, fragility, drop_idx=sl["drop_idx"])
+    out = {**sl, **cp, **acc, "T_carry": float(T_carry), "label_version": LABEL_VERSION,
            "score_N": sc["N"], "score_L": sc["L"], "peak_N": sc["peak_N"], "impulse": sc["impulse"],
            "fragility": {}}
     for name, f_tol in fragility.items():
