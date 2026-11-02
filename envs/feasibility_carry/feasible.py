@@ -141,20 +141,20 @@ def logistic_boundary(F, y, rep, increasing, n_boot=300, seed=0, w_min=0.3):
     return {"F50": F50, "w": w, "ci95": ci, "n": int(len(F)), "n_boot": len(boots)}
 
 
-def refined_intervals(rows, probes, Fs, ss, frag, urg, T_nom, T_max):
+def refined_intervals(rows, probes, Fs, ss, frag, urg, T_nom, T_max, n_boot=300):
     """Per s level: F_min from the slip boundary, F_max from the primary-damage boundary, deadline flag, and the
     refined feasible interval. Uses grid rows plus probe rows at that s level."""
     out = []
     for j, s in enumerate(ss):
         at = [r for r in rows if r["s_idx"] == j] + [p for p in probes if p.get("s_idx") == j]
         F = [r["F"] for r in at]; rep = [r["repeat"] for r in at]
-        slip = logistic_boundary(F, [r["slip"] for r in at], rep, increasing=False)
+        slip = logistic_boundary(F, [r["slip"] for r in at], rep, increasing=False, n_boot=n_boot)
         # the damage boundary is fitted on branches that did not slip: a dropped object can be caught and crushed
         # between the closing fingers, which is a different mechanism and already excluded by the slip label
         held = [r for r in at if not r["slip"]]
         Fh = [r["F"] for r in held]; reph = [r["repeat"] for r in held]
-        dmg = logistic_boundary(Fh, [r["fragility"][frag]["damage_primary"] for r in held], reph, increasing=True)
-        dmg_sh = logistic_boundary(Fh, [r["fragility"][frag]["damage_shear"] for r in held], reph, increasing=True)
+        dmg = logistic_boundary(Fh, [r["fragility"][frag]["damage_primary"] for r in held], reph, increasing=True, n_boot=n_boot)
+        dmg_sh = logistic_boundary(Fh, [r["fragility"][frag]["damage_shear"] for r in held], reph, increasing=True, n_boot=n_boot)
         all_slip = all(r["slip"] for r in at); no_slip = not any(r["slip"] for r in at)
         all_dmg = all(r["fragility"][frag]["damage_primary"] for r in held) if held else True
         no_dmg = not any(r["fragility"][frag]["damage_primary"] for r in held) if held else False
