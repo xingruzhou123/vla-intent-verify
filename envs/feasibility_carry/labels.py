@@ -21,7 +21,10 @@ KAPPA_PRIMARY = "k1"
 F_TOL_MULT = {"x0.75": 0.75, "x1": 1.0, "x1.25": 1.25}
 FRAGILITY = {"fragile": 20.0, "rigid": 50.0}   # N
 GOAL_XY_TOL, GOAL_Z_TOL = 0.03, 0.01          # m
-LABEL_VERSION = 2             # 1: 2026-10-29 definitions; 2: 2026-11-02 drop fix (completed = False after a drop; damage proxies evaluated only while held)
+LABEL_VERSION = 3             # 1: 2026-10-29 definitions; 2: 2026-11-02 drop fix (completed = False after a drop; damage proxies evaluated only while held);
+                              # 3: 2026-11-02 owner rule: completed = False iff the object loses contact with the gripper (run-length test, both pads
+                              #    out of contact ≥ 50 ms) at any time before the scheduled release (lift/lateral/lower/settle); a slip whose grasp holds
+                              #    until the release keeps the geometric completed. Cells whose repeats still disagree are physical stochasticity (flagged)
 CARRY_PHASES = (PH["lift"], PH["lateral"], PH["lower"], PH["settle"])
 LOAD_PHASES = (PH["ramp"], PH["hold"]) + CARRY_PHASES   # damage is evaluated over grasp + carry (never the release)
 
@@ -79,7 +82,7 @@ def slip(R, motion, pad_half, delta_slip=DELTA_SLIP, drop_dist=DROP_DIST, lost_c
     tors = np.abs(motion["torsion"][carry])
     relpad = R.vec("relpad_", "xyz")[carry]
     far = np.linalg.norm(relpad, axis=1) > drop_dist
-    moving = np.isin(phase, CARRY_PHASES[:3])
+    moving = np.isin(phase, CARRY_PHASES)                     # v3: every phase before the scheduled release (incl. settle)
     no_contact = ((R["nc_left"] + R["nc_right"]) == 0)[moving]
     n = max(1, int(round(lost_contact_t / R.dt)))
     lost = len(no_contact) >= n and bool(np.lib.stride_tricks.sliding_window_view(no_contact, n).all(axis=1).any())
@@ -98,7 +101,7 @@ def slip(R, motion, pad_half, delta_slip=DELTA_SLIP, drop_dist=DROP_DIST, lost_c
         drop_idx = min(cands)
     edge = tors * pad_half
     return {"slip_trans_max": float(trans.max()), "slip_torsion_max_deg": float(np.degrees(tors.max())),
-            "slip_edge_max": float(edge.max()), "dropped": dropped, "drop_idx": drop_idx,
+            "slip_edge_max": float(edge.max()), "dropped": dropped, "drop_idx": drop_idx, "lost_contact": bool(lost),
             "slip": bool(trans.max() > delta_slip or edge.max() > delta_slip or dropped)}
 
 
@@ -151,9 +154,9 @@ def damage_labels(scores, f_tol):
 # ----------------------------------------------------------------------------------------------- completion, time
 def completed(R, goal_pos, xy_tol=GOAL_XY_TOL, z_tol=GOAL_Z_TOL, dropped=False):
     """Object rests in the goal region after release: xy within xy_tol of the goal, z within z_tol of the resting
-    height, in contact with the table — and it was not dropped during the carry (fix of 2026-11-02: a dropped object
-    that happens to land in the goal region is not a completed carry). `completed_geometric` keeps the purely
-    geometric test for reference. Damage and slip enter through physical_safe."""
+    height, in contact with the table — and the gripper never lost contact with it before the scheduled release
+    (`dropped` here = the v3 lost-contact flag; owner rule of 2026-11-02). A slip whose grasp holds until the release
+    keeps the geometric result. `completed_geometric` keeps the purely geometric test for reference."""
     last = R.a[-1]
     op = last[[R.c["obj_x"], R.c["obj_y"], R.c["obj_z"]]]
     xy = float(np.linalg.norm(op[:2] - goal_pos[:2]))
@@ -188,7 +191,7 @@ def all_labels(rec, cols, goal_pos, pad_half, T_carry, T_max_levels, fragility=F
     R = Rec(rec, cols)
     motion = relative_motion(R)
     sl = slip(R, motion, pad_half)
-    cp = completed(R, goal_pos, dropped=sl["dropped"])
+    cp = completed(R, goal_pos, dropped=sl["lost_contact"])
     acc = realized_accel(R)
     acc.update({k + "_20ms": v for k, v in realized_accel(R, smooth=0.02).items()})
     sc = damage_scores(R, fragility, drop_idx=sl["drop_idx"])

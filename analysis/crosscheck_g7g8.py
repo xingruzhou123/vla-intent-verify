@@ -15,7 +15,7 @@ from envs.feasibility_carry.env import CarryConfig
 
 FRAGS = ["fragile", "rigid"]; URGS = ["relaxed", "urgent"]
 AGREE_MIN, FEAS_MIN = 0.95, 0.98
-LABELS = ["slip", "completed", "dropped", "damage_primary", "damage_shear", "physical_safe", "deadline_success_relaxed", "deadline_success_urgent"]
+LABELS = ["slip", "completed", "dropped", "lost_contact", "damage_primary", "damage_shear", "physical_safe", "deadline_success_relaxed", "deadline_success_urgent"]
 
 
 def worker(d):
@@ -30,7 +30,7 @@ def worker(d):
     def one(row, path, kind):
         z = np.load(path)
         lb = Bimp.labels_b(z["rec"].astype(float), list(z["cols"]), goal, cfg.pad_half, cfg.T_carry(row["s"]), meta["T_max"], frag)
-        for k in ("slip", "completed", "dropped"):
+        for k in ("slip", "completed", "dropped", "lost_contact"):
             cmp[k][1] += 1; ok = bool(row[k]) == bool(lb[k]); cmp[k][0] += ok
             if not ok: dis.append({"object": d.name, "kind": kind, "F": row["F"], "s": row["s"], "repeat": row["repeat"], "label": k, "A": bool(row[k]), "B": bool(lb[k])})
         for fr in frag:

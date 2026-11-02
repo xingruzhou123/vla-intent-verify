@@ -1,6 +1,6 @@
 """Implementation B — independent second implementation of the outcome labels (gate G7) and of the feasible-set /
 margin / teacher computation (gate G8), docs/data_spec.md §2 and CLAUDE.md. Written from the specification
-(plan.md §3.2–3.5, docs/data_spec.md §1.2–1.3, label version 2 of 2026-11-02) without importing labels.py or
+(plan.md §3.2–3.5, docs/data_spec.md §1.2–1.3, label version 3 of 2026-11-02) without importing labels.py or
 feasible.py; it shares only the raw record format (env.SAMPLE_COLS, phase codes) and uses different numerics:
 hand-written quaternion algebra instead of scipy Rotation, a min-filter instead of sliding windows for the sustained
 peak, run-length encoding for the lost-contact test, numpy group-by for the empirical rates and a distance transform on
@@ -107,10 +107,10 @@ def slip_labels_b(R, pad_half):
     carry = np.isin(ph, CARRY)
     trans = np.sqrt(d[:, 1] ** 2 + d[:, 2] ** 2)
     far = (np.linalg.norm(relpad, axis=1) > DROP_DIST) & carry
-    moving = np.isin(ph, MOVING)
+    moving = np.isin(ph, CARRY)                                 # v3: every phase before the scheduled release (incl. settle)
     nc = (R.col("nc_left") + R.col("nc_right")) == 0
     n = max(1, int(round(LOST_CONTACT_T / R.dt)))
-    # run lengths of consecutive no-contact samples within the moving phases
+    # run lengths of consecutive no-contact samples within the pre-release carry phases
     idx_moving = np.flatnonzero(moving)
     seq = nc[idx_moving]
     run = np.zeros(len(seq), int); cur = 0
@@ -124,9 +124,10 @@ def slip_labels_b(R, pad_half):
         cands.append(int(idx_moving[lost_hits[0] - n + 1]))
     dropped = bool(cands)
     drop_idx = min(cands) if dropped else None
+    lost = bool(len(lost_hits))
     trans_max = float(trans[carry].max()); tors_max = float(np.abs(tors[carry]).max())
     return {"slip": bool(trans_max > DELTA_SLIP or tors_max * pad_half > DELTA_SLIP or dropped),
-            "dropped": dropped, "drop_idx": drop_idx, "slip_trans_max": trans_max, "slip_torsion_max_deg": float(np.degrees(tors_max))}
+            "dropped": dropped, "drop_idx": drop_idx, "lost_contact": lost, "slip_trans_max": trans_max, "slip_torsion_max_deg": float(np.degrees(tors_max))}
 
 
 def sustained_peak_b(x, n):
@@ -175,9 +176,9 @@ def labels_b(rec, cols, goal_pos, pad_half, T_carry, T_max_levels, fragility):
     """All labels of one branch, implementation B. Same output keys as labels.all_labels for the gated labels."""
     R = Record(rec, cols)
     sl = slip_labels_b(R, pad_half)
-    comp = completed_b(R, goal_pos, sl["dropped"])
+    comp = completed_b(R, goal_pos, sl["lost_contact"])        # v3: completed = geometric ∧ ¬lost_contact
     dmg = damage_labels_b(R, fragility, sl["drop_idx"])
-    out = {"slip": sl["slip"], "dropped": sl["dropped"], "drop_idx": sl["drop_idx"], "completed": comp, "fragility": {},
+    out = {"slip": sl["slip"], "dropped": sl["dropped"], "drop_idx": sl["drop_idx"], "lost_contact": sl["lost_contact"], "completed": comp, "fragility": {},
            "slip_trans_max": sl["slip_trans_max"], "slip_torsion_max_deg": sl["slip_torsion_max_deg"]}
     for name in fragility:
         phys = (not sl["slip"]) and (not dmg[name]["damage_primary"])

@@ -44,12 +44,62 @@ is restored from the saved MuJoCo state at the branch point.
 | `T_carry` | float | s-scaled carry duration; `deadline_success` compares it with `T_max` |
 | `outcome` | {slip, damage_primary, damage_shear, physical_safe, completed, deadline_success_relaxed, deadline_success_urgent} ∈ {0,1}⁷ | plan §3.2, §3.5; `damage` in the feasible-set definition means `damage_primary`; fragility-dependent labels are stored once per fragility level |
 | `dropped`, `drop_idx` | bool, int | the object left the gripper during the carry (centre > 0.08 m from the pad midpoint, or both pads out of contact for ≥ 50 ms during lift/lateral/lower); `drop_idx` = first sample of the drop. **Label-definition fix, 2026-11-02 (label version 2):** after a drop the branch outcome is the drop: `completed` is False regardless of where the object lands (`completed_geometric` keeps the purely geometric test for reference), and the damage proxies (`damage_primary_score`, `damage_shear_score`, sensitivity grid, impulse) are evaluated only over the samples before `drop_idx`, so an object crushed between the closing fingers after it fell is not labelled as grasp damage (the slip label already records the drop). Reason: Phase-1 check P6 on the 48-object sweep failed on 27 cells, 23 of which were drop cells whose `completed` / `damage_primary` disagreed across repeats only through where the dropped object landed. Labels of version 1 are kept beside the recomputed files (`summary.labels_v1.json`); the fix is applied by recomputing from the stored time series (`envs/feasibility_carry/relabel.py`), without re-simulation. |
+| `completed` (label version 3, 2026-11-02, owner rule) | bool | `completed_geometric` ∧ ¬`lost_contact`, where `lost_contact` = both pads out of contact for ≥ 50 ms (run-length test) at any time before the scheduled release (lift / lateral / lower / settle). A slip whose grasp holds until the planned release keeps the geometric result; "any slip → False" is explicitly **not** the rule. Damage proxies stop at the drop onset as in version 2. Version-2 files kept as `summary.labels_v2.json`; recomputed from stored records by `relabel.py` (no re-simulation); re-evaluation `results/phase1/full_v3/`. |
+| `cells[]` (per sweep, version 3) | per grid cell: `rates` (empirical rate of every label over the R repeats, stored alongside the binary branch labels), `stochastic` (bool), `disagreeing_labels` | **After label v3, any cell whose repeats still disagree is genuine physical stochasticity, not a label error** (owner decision 2026-11-02). Sweep v1: 213 of 2 304 grid cells are flagged stochastic on at least one label (most on `damage_shear` or `slip` at a boundary); the 18 flagged cells that lie outside every refined boundary's uncertainty are listed below. |
 | `damage_primary_score` | max over t of min_{τ∈[t,t+t_win]} N(τ), per pad (max of the two) | sustained-peak crush proxy; `damage_primary` = score > f_tol at t_win = 50 ms |
 | `damage_shear_score` | same with L(τ) = N(τ) + κ·|T(τ)|, κ = 1 | shear-augmented proxy; `damage_shear` = score > f_tol |
 | `damage_sensitivity` | labels for f_tol × {0.75, 1, 1.25} × t_win ∈ {50, 100} ms × κ ∈ {0.5, 1, 2} | Phase-1 check P5; recomputable from the force series |
 | `damage_impulse` | D = ∫ max(0, N − f_tol) dt (appendix only) | stress test, never a primary label |
 | `actions` | per-step (Δx, ΔR, g) trajectory | required for every executed episode (𝓛_flow) |
 | `replay_error` | contact-force and kinematics error on replay | see gate G5 |
+
+### 1.2a Stochastic cells outside boundary uncertainty and known exceptions (sweep v1, label version 3)
+
+Phase-1 check P6 (plan §6) requires repeat agreement ≥ 0.9 per cell for every label on cells outside the refined
+boundaries' uncertainty. After label version 3, 22 (object, label, cell) entries remain below 0.9
+(`results/phase1/full_v3/report.md`); none was cleared by the v3 rule relative to version 2, because in every one of
+them the grasp held until the scheduled release. They are classified as follows (owner decision 2026-11-02):
+
+**Stochastic cells (18 entries, 18 cells):** every repeat slipped more than 5 mm but the object stayed in the gripper until
+the release; whether it then came to rest inside the 3 cm goal tolerance varied across repeats. The `completed` label is
+genuinely stochastic there (`stochastic = true` in `cells[]`); the per-cell rate is the stored quantity.
+
+| object | F [N] | s | label | agreement | P(slip) |
+|---|---|---|---|---|---|
+| light_slippery_balanced_2 | 22.6 | 0.5 | completed | 0.8 | 1.0 |
+| light_slippery_balanced_2 | 22.6 | 0.715 | completed | 0.8 | 1.0 |
+| light_slippery_off-centre_1 | 10.6 | 1.465 | completed | 0.8 | 1.0 |
+| light_slippery_off-centre_1 | 10.6 | 2.096 | completed | 0.6 | 1.0 |
+| light_slippery_off-centre_1 | 10.6 | 3 | completed | 0.8 | 1.0 |
+| light_slippery_off-centre_2 | 15.5 | 1.465 | completed | 0.6 | 1.0 |
+| medium_slippery_off-centre_0 | 32.9 | 1.024 | completed | 0.6 | 1.0 |
+| medium_slippery_off-centre_0 | 32.9 | 1.465 | completed | 0.6 | 1.0 |
+| medium_slippery_off-centre_0 | 32.9 | 3 | completed | 0.8 | 1.0 |
+| medium_slippery_off-centre_1 | 32.9 | 0.5 | completed | 0.8 | 1.0 |
+| heavy_slippery_balanced_2 | 32.9 | 0.5 | completed | 0.8 | 1.0 |
+| heavy_slippery_balanced_2 | 32.9 | 0.715 | completed | 0.6 | 1.0 |
+| heavy_slippery_off-centre_0 | 48.0 | 2.096 | completed | 0.8 | 1.0 |
+| heavy_normal_balanced_0 | 22.6 | 0.5 | completed | 0.6 | 1.0 |
+| heavy_normal_off-centre_0 | 22.6 | 3 | completed | 0.8 | 1.0 |
+| heavy_normal_off-centre_3 | 22.6 | 1.465 | completed | 0.8 | 1.0 |
+| heavy_normal_off-centre_3 | 22.6 | 2.096 | completed | 0.6 | 1.0 |
+| heavy_normal_off-centre_3 | 22.6 | 3 | completed | 0.6 | 1.0 |
+
+**Known exception (4 entries, 1 cell, not a label error, uncertainty not widened):** heavy_slippery_off-centre_1 at
+F = 48.0 N, s = 1.02 slips in 4 of 5 repeats; the refined slip boundary's 95 % CI ∪ bisection bracket at that s does not
+cover 48.0 N, so the cell counts as outside boundary uncertainty although it is a boundary cell physically. Per the owner
+(2026-11-02) it is recorded here as a known exception rather than by widening the uncertainty definition.
+
+| object | F [N] | s | label | agreement | P(slip) |
+|---|---|---|---|---|---|
+| heavy_slippery_off-centre_1 | 48.0 | 1.024 | slip | 0.8 | 0.8 |
+| heavy_slippery_off-centre_1 | 48.0 | 1.024 | physical_safe/rigid | 0.8 | 0.8 |
+| heavy_slippery_off-centre_1 | 48.0 | 1.024 | deadline_success/rigid/relaxed | 0.8 | 0.8 |
+| heavy_slippery_off-centre_1 | 48.0 | 1.024 | deadline_success/rigid/urgent | 0.8 | 0.8 |
+
+P6 as frozen therefore still reads "fail" on 22 entries; with the 18 stochastic cells and the 1 known-exception cell
+set aside, no label disagreement outside boundary uncertainty remains. The verdict text in notes/decision_phase1.md
+reports both readings; the owner decides which one closes P6.
 
 ### 1.3 Derived per group (computed, never hand-edited)
 

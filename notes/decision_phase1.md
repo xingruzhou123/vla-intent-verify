@@ -66,6 +66,60 @@ the rule or override it with a documented rationale. No decision is taken in thi
    the per-cell lookup is fitted on the sweep; the room for a learned method over that lookup is the remaining 0.104 of
    success and the 0.143 infeasible-selection rate, plus robustness to the ε-noise that the lookup here does not see.
 
+## Phase 1 final reporting (frozen 2026-11-02, tag `phase1-final`)
+
+| check | reported as | number |
+|---|---|---|
+| P2 | **fail** (frozen rule) | 0 of 48 objects reach a 9.75 N separated boundary shift; largest slip shift 7.5 N |
+| P6, frozen | **fail** | 22 (object, label, cell) disagreements below 0.9 outside boundary uncertainty (`results/phase1/full_v3/report.md`) |
+| P6, conditioned (reported separately, never as a pass of the frozen check) | all remaining cells agree | excluding the 19 stochastic-flagged cells outside boundary uncertainty (18 held-slip `completed` cells + the heavy_slippery_off-centre_1 known-exception cell, docs/data_spec.md §1.2a), every other outside-boundary cell has repeat agreement 1.0 on all five labels. Every one of the 22 disagreements lies in a stochastic-flagged cell (verified against `cells[]`) |
+| P1, P3, P4, P5, P7 | pass | see the verdict table above |
+
+Label version 3, implementation A, cross-checked by implementation B (G7/G8 pass). Later label issues go into a known-issues
+list, not a relabel (owner rule). The dataset tag `dataset-v1` still waits for the audit sign-off; `phase1-final` freezes
+the Phase-1 reporting only.
+
+## Third pass (2026-11-02): owner items 0–7
+
+0. Previous pass committed as 2ef25ca (label v2, cross-check B, coarse bound). This pass is uncommitted.
+1. **Label v3 (owner rule): `completed` = False iff the gripper loses contact (run-length test, both pads ≥ 50 ms) before
+   the scheduled release; a slip whose grasp holds keeps the geometric result.** Relabelled from stored records
+   (`summary.labels_v2.json` kept), per-cell rate tables with a `stochastic` flag stored in every `summary.json`
+   (`cells[]`), baselines re-executed, everything re-evaluated: `results/phase1/full_v3/report.md`. **No verdict other
+   than P6 changed; P6 as frozen still fails on the same 22 entries** (P1, P3, P4, P5, P7 pass; P2 fails; identical
+   numbers). Of the 22 entries, **0 were cleared by the v3 rule** (in every one the grasp held until the release) and
+   **18 are flagged stochastic** (`completed` after a held slip, listed in docs/data_spec.md §1.2a); the remaining 4 are the
+   heavy_slippery_off-centre_1 boundary cell (F = 48.0 N, s = 1.02), documented as a known exception without widening the
+   uncertainty. With the 18 stochastic cells and the known-exception cell set aside, no disagreement outside boundary
+   uncertainty remains; whether that closes P6 is the owner's reading. Sweep-wide, 213 of 2 304 grid cells carry a
+   stochastic flag on at least one label (most on `damage_shear` or `slip` at a boundary). G7/G8 re-run on v3
+   (`results/phase1/crosscheck_v3/report.md`): 100 % agreement on all nine classes, feasible sets / margins / teacher
+   identical on 192/192 contexts.
+2. **P2: decision pending.** The owner's template was left unfilled; P2 is reported as failed under the frozen rule
+   everywhere, and no override is recorded.
+3. **Noisy coarse lookup** (`analysis/coarse_bound2.py`, `results/phase1/coarse_bound_v2/report.md`): the lookup table is
+   keyed by the training objects' ε-noisy bins and queried with the held-out object's ε-noisy bins (spec draw, seed 0, the
+   same realisation the rules see). Canonical split, 48 held-out contexts: infeasible-selection rate 0.314 (noise-free
+   lookup 0.143; B5a-c 0.229; B5b-c 0.286; best single fixed 0.486), mean success 0.500 (noise-free 0.625; oracle 0.729;
+   B5a-c 0.562; B5b-c 0.521; best fixed 0.375). Over 19 further noise seeds the noisy lookup scores 0.584 ± 0.051 success
+   and 0.198 ± 0.070 infeasible, so the seed-0 draw is on the unlucky side.
+4. **Leave-one-object-out** (4 folds, mean ± sd, all 48 groups): oracle success 0.641 ± 0.054; noise-free lookup
+   0.569 ± 0.038 (infeasible 0.171 ± 0.055); noisy lookup 0.506 ± 0.016 (0.249 ± 0.045); B5a-c 0.573 ± 0.010
+   (0.133 ± 0.072); B5b-c 0.556 ± 0.040 (0.163 ± 0.104); best single fixed 0.340 ± 0.022 (0.495 ± 0.064). The calibrated
+   Coulomb rule is as good as the noise-free lookup and better than the noisy one under the deployment noise.
+5. **Difficulty split** (24 groups with a grid cell feasible for all four objects vs 24 without; 11 of the latter have no
+   feasible object at all). LOO, groups without a common cell, success / infeasible: oracle 0.281 / 0; noise-free lookup
+   0.210 / 0.278; noisy lookup 0.165 / 0.407; B5a-c 0.240 / 0.295; B5b-c 0.217 / 0.402; best fixed 0.112 / 0.559. Excluding
+   the 11 all-empty groups: oracle 0.519, B5a-c 0.442, lookup 0.388, noisy lookup 0.304. On the groups with a common cell
+   every method except the fixed cell is near the oracle (lookup 0.927, B5a-c 0.906, noisy lookup 0.848 vs 1.000).
+   Reading: the paper's target groups are where coarse bins do not determine a safe cell; there the gap between the best
+   coarse-information method and the oracle is 0.08–0.2 of success and 0.3–0.4 infeasible-selection rate.
+6. **Audit sample** (`results/phase1/audit/`, `analysis/audit_sample.py`): 50 branches, stratified over 8 classes with
+   positives and negatives of each (seed 0), each replayed from its stored state and rendered as an mp4 and a frame strip
+   with the recorded force / slip / contact traces; `audit_sheet.csv` and `audit_sheet.md` carry the predicted labels and
+   a blank owner-verdict column. Replay reproduced every stored label on all 50 branches.
+7. **Freeze: not done.** Waiting for the owner's audit sign-off and P2 decision; no tag, no next phase.
+
 ## Frozen decisions and definitional changes (unchanged, recorded before the sweep)
 
 This section records the frozen decisions and definitional changes made before the sweep, each dated, so that nothing is

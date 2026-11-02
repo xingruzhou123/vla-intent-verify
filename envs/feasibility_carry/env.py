@@ -311,6 +311,8 @@ class FeasibilityCarry(SingleArmEnv):
             policy_step = False
             if rec is not None:
                 rec.append(self.sample())
+            if getattr(self, "step_hook", None) is not None:      # optional per-substep callback (audit rendering)
+                self.step_hook(self)
             if self._grip_mode == "ramp":
                 (fl, *_), (fr, *_), _ = self.pad_forces()
                 if (fl > self.cfg.contact_threshold and fr > self.cfg.contact_threshold) or \

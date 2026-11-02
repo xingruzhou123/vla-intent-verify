@@ -15,6 +15,27 @@ from .env import CarryConfig
 from . import labels
 
 KEEP = ("F", "s", "F_idx", "s_idx", "repeat", "pert", "wall_s", "sim_s", "probe_idx", "purpose")
+CELL_LABELS = ("slip", "completed", "lost_contact", "dropped")
+CELL_FRAG_LABELS = ("damage_primary", "damage_shear", "physical_safe", "deadline_success_relaxed", "deadline_success_urgent")
+
+
+def cell_table(rows, nF, nS):
+    """Per grid cell: the empirical rate of every label over the repeats, stored alongside the binary branch labels, and a
+    `stochastic` flag = some label's repeats disagree (owner rule of 2026-11-02: after label v3 any remaining disagreement
+    is physical stochasticity, not a label error)."""
+    cells = []
+    for i in range(nF):
+        for j in range(nS):
+            cell = [r for r in rows if r["F_idx"] == i and r["s_idx"] == j]
+            if not cell:
+                continue
+            rates = {k: float(np.mean([r[k] for r in cell])) for k in CELL_LABELS}
+            for frag in cell[0]["fragility"]:
+                for k in CELL_FRAG_LABELS:
+                    rates[f"{k}|{frag}"] = float(np.mean([r["fragility"][frag][k] for r in cell]))
+            disagreeing = sorted(k for k, v in rates.items() if 0.0 < v < 1.0)
+            cells.append({"F_idx": i, "s_idx": j, "n": len(cell), "rates": rates, "stochastic": bool(disagreeing), "disagreeing_labels": disagreeing})
+    return cells
 
 
 def relabel_dir(d):
@@ -22,6 +43,10 @@ def relabel_dir(d):
     S = json.loads((d / "summary.json").read_text()); meta = S["meta"]
     old_v = meta.get("label_version", 1)
     if old_v == labels.LABEL_VERSION:
+        if "cells" not in S:
+            S["cells"] = cell_table(S["branches"], len(meta["F"]), len(meta["s"]))
+            (d / "summary.json").write_text(json.dumps(S, indent=1, default=float))
+            return str(d), "already at version %d; cell table added" % old_v, 0
         return str(d), "already at version %d" % old_v, 0
     cfg = CarryConfig(**{k: (tuple(v) if isinstance(v, list) else v) for k, v in meta["config"].items()})
     table_offset = np.array((0.0, 0.0, 0.8))                  # env.FeasibilityCarry.table_offset (fixed)
@@ -42,7 +67,7 @@ def relabel_dir(d):
     (d / f"summary.labels_v{old_v}.json").write_text(json.dumps(S, indent=1, default=float))
     meta["label_version"] = labels.LABEL_VERSION
     meta["label_settings"]["label_version"] = labels.LABEL_VERSION
-    (d / "summary.json").write_text(json.dumps({"meta": meta, "branches": rows}, indent=1, default=float))
+    (d / "summary.json").write_text(json.dumps({"meta": meta, "branches": rows, "cells": cell_table(rows, len(meta["F"]), len(meta["s"]))}, indent=1, default=float))
     pp = d / "probes.json"
     if pp.exists():
         P = json.loads(pp.read_text())
