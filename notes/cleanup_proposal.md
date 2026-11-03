@@ -98,3 +98,22 @@ Recommended: do the first row and the pip cache now (≈ 39 GB freed, no loss); 
 whether the negative result will be written up; if it will not, delete `sweep_v1_ext` first and `sweep_v1` only after
 the one-object regeneration check above passes. `third_party/` (174 MB) and `.venv/` (8.7 GB) are needed for anything
 that loads π0.5 and stay.
+
+## 5. Owner decisions and actions taken (2026-11-03)
+
+Decisions: whitelist option 2 without `audit/`; keep the brief's preamble; remove the five non-evidence files from the
+branch; delete the demo npz, the pip cache, the untracked `probing/` leftovers and `__pycache__`; keep both sweeps; do
+not touch `~/.cache/huggingface`; run the one-object regeneration check.
+
+| Action | Measured |
+|---|---|
+| `.gitignore` whitelist: `report.md`, `summary.json`, `*.png`, `*.pdf` under `results/phase1/{full_v3,demo600_report,pilot}` | 80 files, 9 156 922 bytes (9.2 MB) added to git |
+| `git rm` of `claude_code_prompt_feasibility.md`, `notes/proposed_phase1_spec.md`, `.patch`, `notes/week1_pi0_options.md`, `notes/week2_perturbations_libero.md` | 5 files |
+| npz time series of the eight demo dirs (`demo_a`, `demo_b0/b15/b20/b25`, `demo_c`, `demo600_a`, `demo600_c`) deleted; summaries, probes.json, reports and figures kept | 2 945 + 1 067 files, 1.1 GB + 345 MB; `results/` 1.5 GB → 84 MB |
+| untracked `probing/` (results, __pycache__) deleted | 16 MB |
+| `__pycache__` in the project tree (analysis, baselines, envs, and their subdirs; `.venv/` and `third_party/` not touched) | 4 dirs, < 1 MB |
+| `pip cache purge` (system pip; the venv has no pip module) | 6 331 files, 39 970 MB removed; `~/.cache/pip` 38 GB → 32 MB |
+| `~/.cache/huggingface` | untouched |
+| `data/sweep_v1`, `data/sweep_v1_ext` | kept, 15 GB |
+
+Disk before → after: `data/` 15 GB → 15 GB; `results/` 1.5 GB → 84 MB; `probing/` 16 MB → 0; `~/.cache/pip` 38 GB → 32 MB.

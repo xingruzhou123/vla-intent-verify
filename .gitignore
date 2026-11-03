@@ -7,3 +7,20 @@ third_party/
 docs/papers/
 .venv/
 __pycache__/
+
+# Phase-1 evidence whitelist (owner decision 2026-11-03): reports, summaries and figures of the final runs only.
+# Raw sweeps, npz time series, mp4, audit frames and superseded runs stay ignored.
+!results/
+results/*
+!results/phase1/
+results/phase1/*
+!results/phase1/full_v3/
+!results/phase1/demo600_report/
+!results/phase1/pilot/
+results/phase1/full_v3/*
+results/phase1/demo600_report/*
+results/phase1/pilot/*
+!results/phase1/*/report.md
+!results/phase1/*/summary.json
+!results/phase1/*/*.png
+!results/phase1/*/*.pdf

@@ -36,7 +36,7 @@ Not done and not planned: the 50-branch human audit (cancelled, resumable), the 
 ## 3. Blockers
 
 - [ ] PaliGemma tokenizer licence (gated on Hugging Face) — only matters once π0.5 rollouts are needed; not a Phase-0 blocker.
-- [ ] Repo cleanup: proposal in `notes/cleanup_proposal.md`; nothing deleted until the owner confirms.
+- [x] Repo cleanup done 2026-11-03 per owner decisions (`notes/cleanup_proposal.md` §5); both raw sweeps kept.
 
 ## 4. Phase 0 checklist
 
@@ -52,5 +52,6 @@ Not done and not planned: the 50-branch human audit (cancelled, resumable), the 
 
 | Date | Entry |
 |---|---|
+| 2026-11-03 | Owner decisions applied. Evidence whitelist in `.gitignore`: `report.md`, `summary.json` and figures of `results/phase1/full_v3`, `demo600_report`, `pilot` only (80 files, 9.2 MB). Removed from the branch: `claude_code_prompt_feasibility.md`, `notes/proposed_phase1_spec.{md,patch}`, `notes/week1_pi0_options.md`, `notes/week2_perturbations_libero.md`. Deleted from disk: npz time series of the eight pre-sweep demo dirs (results/ 1.5 GB → 84 MB), untracked `probing/` leftovers (16 MB), project `__pycache__` dirs, pip cache (38 GB → 32 MB). `~/.cache/huggingface` untouched. Both sweeps kept; one-object regeneration check: see next line. |
 | 2026-11-03 | Branch `semantic-obligations` set up for the new direction (owner's brief in `notes/new_direction_brief.md`). `plan.md` → `docs/archive/plan_feasibility_v1.md`, `plan_v0.1.md` → `docs/archive/plan_intent_evidence_v0.1.md`; new Phase-0 `plan.md`; `status.md` and `CLAUDE.md` rewritten; `notes/cleanup_proposal.md` written (data 15 GB, results 1.5 GB, third_party 174 MB, .venv 8.7 GB; nothing deleted). Tracking of `results/phase1` reports, summaries and figures waits on the owner: the full set is 46 MB, over the 20 MB limit. |
 | 2026-11-03 | Repo published to GitHub (`origin`, owner-created). Feasibility line closed; history of that project is in the previous `status.md` at tag `active-probe-final` / commit 16e6442. |
