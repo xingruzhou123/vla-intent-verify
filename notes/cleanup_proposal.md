@@ -114,6 +114,27 @@ not touch `~/.cache/huggingface`; run the one-object regeneration check.
 | `__pycache__` in the project tree (analysis, baselines, envs, and their subdirs; `.venv/` and `third_party/` not touched) | 4 dirs, < 1 MB |
 | `pip cache purge` (system pip; the venv has no pip module) | 6 331 files, 39 970 MB removed; `~/.cache/pip` 38 GB → 32 MB |
 | `~/.cache/huggingface` | untouched |
-| `data/sweep_v1`, `data/sweep_v1_ext` | kept, 15 GB |
+| `data/sweep_v1`, `data/sweep_v1_ext` | kept, 15 GB; regeneration verified bit-exact on one object (§6) |
 
 Disk before → after: `data/` 15 GB → 15 GB; `results/` 1.5 GB → 84 MB; `probing/` 16 MB → 0; `~/.cache/pip` 38 GB → 32 MB.
+
+## 6. One-object regeneration check (2026-11-03, owner request)
+
+`run_objects data/objects_v1.json --only heavy_normal_balanced_0 --parallel 1` into a scratch dir (8.1 min wall, grid +
+refinement), then `relabel` on the scratch dir (v1 → v3, as the stored sweep had been relabelled). Compared against
+`data/sweep_v1/heavy_normal_balanced_0` with a script that checks every npz array with `np.array_equal` and the JSON
+files after dropping the wall-clock fields.
+
+| Artifact | Result |
+|---|---|
+| `branch_state_r0..4.npz` (saved MuJoCo state) | 5 / 5 bit-identical |
+| `branches/*.npz` (240 grid time series) | 240 / 240 bit-identical |
+| `probes/*.npz` (250 refinement time series) | 250 / 250 bit-identical |
+| `summary.json` (labels v3, cell table) | identical after dropping `wall_s` |
+| `probes.json` | identical after dropping `wall_s` |
+
+Before the relabel step the fresh `summary.json` / `probes.json` differed from the stored ones only by the missing
+`label_version` field and by label values at the 1e-11 level, because the stored files were recomputed from the float32
+npz by `relabel.py` while a fresh sweep labels the float64 in-memory record. So the exact reproduction recipe is
+`objects → run_objects → relabel`, as in §3. Holds for this machine, MuJoCo 3.8.1, robosuite 1.4.0; not tested across
+machines or versions. Both sweeps are kept.
