@@ -227,3 +227,96 @@ Consequences recorded the same day:
 - Everything on branch `probing` committed, merged to `main`, tagged `active-probe-final`.
 - One section on this check added to `notes/phase1_postmortem.md`.
 - `status.md`: feasibility line closed (Phase 1 + active-probing check); no active project in this repo.
+
+## Diagnostic pass before final closure (owner request of 2026-11-03; existing 89-object data only)
+
+Script `analysis/active_probe_diag.py`; report and numbers `results/phase1/active_probe_diag/` (report.md, diag.json).
+No new objects, no learned model, no π0.5. The only simulation was the execution of the inner-fold analytic selections
+(3 284 distinct, 29 min). Timeboxed to one session; the line is closed regardless of the outcome (owner hard stop).
+
+### 1. Updater-selection bias removed (65 broad ambiguous units; oracle B5b-true-cal, J_coarse B5a-c, as in v2)
+
+| protocol | safe success [CI] | gap = oracle − analytic [CI] | ρ_analytic [CI] |
+|---|---|---|---|
+| nested: updater chosen per outer fold on inner held-out ambiguous units (inner calibrations executed) | 0.938 [0.877, 0.985] | +0.046 [0.000, 0.108] | **0.875 [0.72, 1.00]** |
+| nested, chosen on all inner units | 0.877 [0.800, 0.954] | +0.108 [0.046, 0.185] | 0.708 [0.52, 0.89] |
+| frozen a priori: B5a on point estimates (the plan's primary rule) | 0.892 [0.815, 0.969] | +0.092 [0.031, 0.169] | 0.750 [0.58, 0.92] |
+| v2 in-sample choice (B5b point), for reference | 0.923 [0.862, 0.985] | +0.062 [0.015, 0.123] | 0.833 [0.67, 0.96] |
+
+Chosen updaters per fold (ambiguous criterion): B5a-point, B5b-point, B5b-point, B5b-point; the inner scores of the two
+point updaters differ by ≤ 0.04 in every fold. On all 356 units the nested ρ is 0.701 [0.55, 0.83] (gap +0.046
+[0.024, 0.069]); on the 222 feasible units 0.811 [0.67, 0.94]. **Bounded reading:** the bias-free point estimate of
+ρ_analytic on the ambiguous population lies between 0.71 and 0.88 depending on the selection protocol, the CIs span
+[0.52, 1.00], and the absolute gap lies between 5 and 11 success points with every CI touching or including 0 at the
+low end and ≈ 0.11–0.19 at the high end. The v2 value 0.833 is inside that range; the matrix threshold 0.8 is not
+established either way by these data.
+
+### 2. Decomposition of the 65 broad ambiguous units
+
+| class | units |
+|---|---|
+| all members of the bin individually feasible (strict) | 0 |
+| mixed (at least one sibling intrinsically infeasible) | 65 |
+| feasibility disagreement only: the feasible siblings share a grid cell | 33 |
+| action disagreement: the feasible siblings have no common grid cell | 32 — of which 21 have a common *continuous* F at some s (grid artefact) |
+| removable by a finer coarse vocabulary (half-width sub-bins, all sub-bin siblings feasible with a common cell) | 45 (upper bound: 1–4 units per sub-bin group) |
+
+Mutually exclusive: feasibility-only / sub-bin-removable 26; feasibility-only / persists 7; action + feasibility /
+sub-bin-removable 19; action + feasibility / persists 13. So only 13 of the 65 units show an action disagreement among
+feasible siblings that survives a finer vocabulary, and 11 of the 32 action disagreements have no common continuous F.
+
+Where the Gate-1 gain comes from (oracle − lookup = +0.265, sum +17.2 over the 65 units): +18.2 from the 19 units where
+the lookup cell lies outside the unit's feasible set (a different action was needed), −1.0 from the 46 units where the
+lookup cell is feasible (one unit with lookup above the oracle; no stochastic partial successes). **Zero of the +0.265
+comes from identifying infeasible instances** — every unit of this population is feasible by construction. On all 356
+units (+0.132) the split is common-safe +4.6 (10 %), mixed +17.2 (37 %), infeasible +25.2 (54 %): the largest share of
+the all-units gain is the oracle finding a continuous F that succeeds on units whose grid feasible set is empty, not
+abstention. Abstention on the 134 infeasible units: oracle 92, B5b-point probe 78, B5a-point probe 74, B5a-c 23, lookup
+0; damage rate when attempting: 0.07 / 0.17 / 0.17 / 0.28. **"Broad ambiguous" is therefore not a usable paper
+population without this decomposition:** it is 100 % "mixed", half of it is feasibility disagreement with a shared safe
+cell among the feasible siblings, and most of it disappears under a finer vocabulary.
+
+### 3. Residual oracle − analytic gap, case by case (seed-0 observation, fixed attribution order)
+
+| updater | cases | stochastic boundary labels | boundary resolution | probe noise (μ) | probe noise (m) | omitted CoM/torque physics | calibration | other |
+|---|---|---|---|---|---|---|---|---|
+| B5a point (frozen; 6 of 65, 0.092 points) | 6 | 1 | 0 | 1 | 1 | 0 | 3 | 0 |
+| B5b point (4 of 65, 0.062 points) | 4 | 1 | 1 | 1 | 0 | 0 | 1 | 0 |
+
+Each case is one unit with oracle 1.0 and analytic 0.0 (the per-unit table with miss direction, distance to the
+boundary, standardised estimation errors and the counterfactual fixes is in the report). No case is attributed to omitted
+CoM/torque physics: substituting all true properties fixes every B5a case through the multipliers, not through the
+torque term. Three of the six B5a cases and one of the four B5b cases are calibration (the per-fold multipliers, fitted
+on noisy training estimates, push the selection out of the interval although the noisy estimate alone would not).
+
+**Systematic, observable pattern?** Over the 65 units × 10 noise seeds (label-based outcome): B5a point 53 misses of
+634 (0.084), B5b point 42 of 646 (0.065). Miss direction is balanced (above the damage boundary 27 / 23, below the slip
+boundary 26 / 19, abstained 16 / 4), so there is no sign bias to correct. A grouped out-of-fold ridge model on the
+run-time observables (bin, fragility, urgency, m̂, μ̂, d̂, F, s) predicts the failure indicator at chance (AUC 0.41 /
+0.59); its R² on the signed margin (0.36 / 0.31) reflects that the margin itself depends on bin and F, not that the
+errors do. What is systematic is per-object: the misses sit in 13–14 objects and repeat across noise seeds
+(heavy_normal_balanced_5 misses in 9 of 10 seeds with both updaters, heavy_slippery_balanced_1 in 8 of 10,
+medium_normal_off-centre_7 in 10 of 10 with B5a), i.e. they are modelling errors of the analytic interval for particular
+objects, not probe noise — but with one such object per bin they are not predictable out-of-fold from the observables at
+this data size. **Verdict: no observable pattern that would support an analytic-plus-learned residual correction is
+established by these data.**
+
+Possible future project (recorded only; no work started, owner hard stop): characterise the object-persistent misses of
+the analytic interval (which physical feature of those objects the Coulomb/wrench rule misses) on a larger object set;
+a residual corrector would need many objects per bin with such persistent misses to be learnable out-of-fold.
+
+### Bounded conclusions (2026-11-03)
+
+- **P2 remains failed** (frozen rule: 0 of 48 objects reach a 9.75 N separated boundary shift; largest slip shift 7.5 N).
+- **P6-frozen remains failed** (22 disagreements below 0.9 outside boundary uncertainty); the conditioned result is
+  reported separately and never as a pass: every one of the 22 lies in a stochastic-flagged cell, and all remaining
+  outside-boundary cells have repeat agreement 1.0.
+- **The current data do not establish that learning is unnecessary in general.** The bias-free ρ_analytic is 0.71–0.88
+  with CIs down to 0.52; the residual gap of 5–11 points is attributed to calibration, probe noise, label stochasticity
+  and boundary resolution on 4–6 units; and the small learned model's curve was still rising at 67 objects.
+- **The current evidence does establish that π0.5 fine-tuning is not justified for this environment and deadline:**
+  exact information closes +0.265 of the gap on the ambiguous contexts (18 % of all), the analytic rule on probe
+  estimates recovers most of it, the population where it matters is mostly a feasibility-disagreement and
+  vocabulary artefact, and nothing in the residual is a learnable pattern at this data size.
+- Direction closed (owner, 2026-11-03). The dataset is not tagged: the final dataset tag waits for the owner audit
+  sign-off (audit still cancelled for now, resumable).
