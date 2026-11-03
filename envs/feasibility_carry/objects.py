@@ -21,14 +21,19 @@ CENTRES = {attr: {k: 0.5 * (lo + hi) for k, (lo, hi) in bands.items()} for attr,
 CELLS = list(itertools.product(BANDS["mass"], BANDS["friction"], BANDS["balance"]))   # 12 physical bin cells
 
 
-def sample_objects(per_cell=4, seed=0, test_per_cell=1):
+def sample_objects(per_cell=4, seed=0, test_per_cell=1, k_offset=0, n_objects=None):
     """per_cell objects in each of the 12 physical bin cells; the last `test_per_cell` of each cell go to the
     test-combos split (continuous values never seen in training). Fragility is sampled per object for both classes
-    (label parameters: both are applied to every branch)."""
+    (label parameters: both are applied to every branch).
+    Extension sampling (owner approval 2026-11-03): `k_offset` shifts the per-cell object index so that the ids do not
+    collide with an earlier file; `n_objects` keeps only that many objects — `n_objects // 12` per cell plus one extra in
+    `n_objects % 12` cells chosen uniformly at random (seeded), so the bin prior stays uniform in expectation."""
     rng = np.random.default_rng(seed)
+    base, extra = (per_cell, []) if n_objects is None else (n_objects // len(CELLS), list(rng.choice(len(CELLS), n_objects % len(CELLS), replace=False)))
     objs = []
-    for (mb, fb, bb) in CELLS:
-        for k in range(per_cell):
+    for ci, (mb, fb, bb) in enumerate(CELLS):
+        n_cell = base + (ci in extra)
+        for k in range(k_offset, k_offset + n_cell):
             u = lambda attr, key: float(rng.uniform(*BANDS[attr][key]))
             objs.append({
                 "object_id": f"{mb}_{fb}_{bb}_{k}",
@@ -36,7 +41,7 @@ def sample_objects(per_cell=4, seed=0, test_per_cell=1):
                 "mass": round(u("mass", mb), 4), "mu": round(u("friction", fb), 4),
                 "com_frac": round(u("balance", bb), 4),
                 "f_tol": {"fragile": round(u("fragility", "fragile"), 2), "rigid": round(u("fragility", "rigid"), 2)},
-                "split": "test-combos" if k >= per_cell - test_per_cell else "train",
+                "split": "test-combos" if (n_objects is None and k - k_offset >= per_cell - test_per_cell) else "train",
             })
     return objs
 
@@ -47,11 +52,13 @@ def main(argv=None):
     ap.add_argument("--per_cell", type=int, default=4)
     ap.add_argument("--test_per_cell", type=int, default=1)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--k_offset", type=int, default=0, help="first per-cell object index (extension files: 4)")
+    ap.add_argument("--n_objects", type=int, default=None, help="total number of objects (extension files; overrides --per_cell, all 'train')")
     args = ap.parse_args(argv)
-    objs = sample_objects(args.per_cell, args.seed, args.test_per_cell)
+    objs = sample_objects(args.per_cell, args.seed, args.test_per_cell, args.k_offset, args.n_objects)
     out = pathlib.Path(args.out); out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({"bands": BANDS, "centres": CENTRES, "seed": args.seed, "per_cell": args.per_cell,
-                               "test_per_cell": args.test_per_cell, "objects": objs}, indent=1))
+                               "test_per_cell": args.test_per_cell, "k_offset": args.k_offset, "n_objects": args.n_objects, "objects": objs}, indent=1))
     print(f"wrote {len(objs)} objects to {out} ({sum(o['split']=='train' for o in objs)} train, "
           f"{sum(o['split']!='train' for o in objs)} test-combos)")
 

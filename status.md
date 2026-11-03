@@ -2,9 +2,10 @@
 
 **Active plan:** `plan.md` — Counterfactual Feasibility Distillation (2026-10-29)
 **Archived plan:** `plan_v0.1.md` — intent–evidence verification (2026-09-23), not active
-**Last updated:** 2026-11-02
-**Current phase:** Phase 1 — physical-mechanism go/no-go (2026-10-30 → 2026-11-09)
-**Next decision:** owner re-planning after the Phase-1 verdict of 2026-11-02 (P2 and P6 fail; `notes/decision_phase1.md`)
+**Last updated:** 2026-11-03
+**Current phase:** none. **Feasibility line closed (Phase 1 + active-probing check).** No active project in this repo. Reusable: env, sweep/branching tools, G7/G8 cross-check, analytic baselines, gate workflow.
+**Next decision:** owner starts a new plan. Nothing else is open; the 50-branch audit is cancelled for now (resumable if the negative result is written up).
+**Tags:** `phase1-final` (Phase-1 reporting, labels v3), `active-probe-final` (three-gate check v2, owner decision: active identification + analytic control).
 
 ---
 
@@ -24,7 +25,7 @@
 
 - [ ] **PaliGemma tokenizer licence (gated on Hugging Face).** Accept it manually in the browser, then re-run the cold smoke test. Blocks π0.5 rollouts, not the Phase-1 physics sweeps.
 - [x] ~~Full sweep awaits owner confirmation~~ approved and run 2026-11-02 (`data/sweep_v1`, 48 objects, 54 min wall).
-- [ ] **Phase 1 close-out pending two owner inputs** (2026-11-02, third pass): (a) the P2 decision (template unfilled; reported as failed under the frozen rule), (b) sign-off on the 50-branch audit sheet `results/phase1/audit/audit_sheet.csv`. Then: tag dataset-v1, update docs/data_spec.md + status.md, labels frozen (later issues → known-issues list), continue with the next phase per plan.md. P6 as frozen still fails on 22 entries, all 18 + 4 classified (stochastic / known exception) in docs/data_spec.md §1.2a; owner reads the verdict.
+- [x] ~~Phase 1 close-out pending one owner input~~ closed 2026-11-03: (a) P2 — frozen rule kept, fails, no override; (b) the 50-branch audit (`results/phase1/audit/audit_sheet.csv`) is **cancelled for now** — no paper depends on these labels; resumable if the negative result is written up later. dataset-v1 is not tagged; labels stay as at `phase1-final`. P6 as frozen fails on 22 entries (18 stochastic + 4 known exception, docs/data_spec.md §1.2a).
 
 ## 3. Retired with v0.1 (do not continue)
 
@@ -63,11 +64,14 @@ Code written for these items stays in the repo but is not extended. Do not delet
 - [x] Label v3 (owner rule: completed = False iff lost contact before the scheduled release), cell tables with `stochastic` flag, relabel without re-simulation, re-evaluation `results/phase1/full_v3/` (no verdict changes; 0 of 22 P6 entries cleared, 18 stochastic + 4 known exception); G7/G8 re-run on v3 (pass, `results/phase1/crosscheck_v3/`)
 - [x] Coarse bound v2 `analysis/coarse_bound2.py` → `results/phase1/coarse_bound_v2/report.md`: noisy lookup, leave-one-object-out (4 folds), difficulty split, executed B5a-c/B5b-c per fold
 - [x] Audit sample `analysis/audit_sample.py` → `results/phase1/audit/` (50 branches, 8 classes, mp4 + frame strips, sheet with blank verdict column; 0 replay mismatches) — awaiting owner review
-- [ ] Freeze dataset-v1 (tag, spec, status) after audit sign-off and the P2 decision
+- [ ] ~~Freeze dataset-v1 (tag, spec, status) after audit sign-off~~ dropped 2026-11-03 with the audit cancellation (no paper depends on the labels)
+- [x] Three-gate check v1 for the active-probing direction (2026-11-02, `results/phase1/active_probe/`); matrix row "π0.5 worth testing" declared **not valid** by the owner 2026-11-03 (Gate 3 failed from data size; recorded in `notes/decision_active_probe.md`)
+- [x] Owner-approved extension (2026-11-03): 41 more continuously-sampled objects, same bands (`data/objects_ext1.json` → `data/sweep_v1_ext/`, 43 min wall, 6.8 GB, G7/G8 pass `results/phase1/crosscheck_ext1/`), then Gates 1–3 re-run (`analysis/active_probe_gates2.py` → `results/phase1/active_probe_v2/report.md`) with (1) out-of-sample oracle = B5a/B5b on true properties executed in simulation (in-sample grid oracle as reference only), (2) ρ_analytic with bootstrap CIs over units plus the absolute oracle − probe gap, (3) grouped splits with a learning curve at 25/50/75/100 % of the training objects, (4) the fraction of all contexts that are ambiguous. No π0.5 fine-tuning, no probe rollouts.
+- [x] **Owner's final decision 2026-11-03: matrix row = active identification + analytic control; direction closed** (`notes/decision_active_probe.md` final section, `notes/phase1_postmortem.md`); committed, merged to `main`, tagged `active-probe-final`
 - [x] Coarse-information upper bound `analysis/coarse_bound.py` → `results/phase1/coarse_bound_v1/report.md` (coarse-cell lookup: success 0.625 vs oracle 0.729, infeasible 0.143; 24/48 groups have a common feasible cell)
 - [x] Flex-body research note `notes/flex_feasibility.md` (2026-11-02; no implementation)
 
-## 5. After Phase 1 (only if P1–P3 and P6 pass)
+## 5. After Phase 1 (only if P1–P3 and P6 pass) — not reached; line closed 2026-11-03
 
 - [ ] Data pipeline v1 + gates (30-group pilot)
 - [ ] Extended action interface in π0.5; parameter head and outcome head
@@ -83,6 +87,9 @@ Code written for these items stays in the repo but is not extended. Do not delet
 | Late Sep → Oct | Week-1 environment set up: venv, LIBERO, π0.5 checkpoints, hooks verified; tokenizer licence blocking |
 | 2026-10-29 | Switched to `plan.md` (Counterfactual Feasibility Distillation); v0.1 archived as `plan_v0.1.md`; status refreshed |
 | 2026-10-29 | Housekeeping done: v0.1 materials archived (e8145f8), plan switch committed (bcaa0f4), `CLAUDE.md` rewritten and `docs/data_spec.md` written for interaction groups. Tokenizer still gated (owner accepting licence). Next: Phase 1 `envs/feasibility_carry/` |
+| 2026-11-03 | **Feasibility line closed.** Owner's final decision on the active-probing check: matrix row = active identification + analytic control (ρ_analytic 0.833 [0.67, 0.96]; gap to oracle 6 points; the small model below the analytic updater at every training size); not a VLA paper, not a learning paper. Recorded in `notes/decision_active_probe.md`; post-mortem section written in `notes/phase1_postmortem.md` (bottleneck is information; once available, the analytic rule suffices). Audit cancelled for now (resumable), dataset-v1 not tagged. Branch `probing` committed, merged to `main`, tagged `active-probe-final`. No active project in this repo until the owner starts a new plan. |
+| 2026-11-03 | Owner decisions: P2 closed (frozen rule kept, fail, no override); audit still pending owner review; the v1 matrix row "π0.5 worth testing" is not valid (Gate 3's failure is a data-size effect, 36 training objects, and a small model failing from scarcity says nothing about a larger model) — recorded in `notes/decision_active_probe.md`. 41-object extension approved and started (`data/objects_ext1.json`, `data/sweep_v1_ext/`); gates v2 done (`analysis/active_probe_gates2.py`, `results/phase1/active_probe_v2/`, 26 min): 356 units, 65 broad ambiguous (0.183 [0.143, 0.222] of all), 0 strict with 7–8 objects per bin; Gate 1 pass with the out-of-sample oracle B5b-true-cal (+0.265 [0.154, 0.385] over lookup); Gate 2 ρ_analytic 0.833 [0.67, 0.96], gap +0.062 [0.015, 0.123]; Gate 3 ρ_small 0.10 / 0.11 / 0.22 / 0.34 at 25 / 50 / 75 / 100 % of ≈ 67 training objects, 100 % CI [−0.07, 0.63]. Matrix row left to the owner. Extension is not part of dataset-v1. Uncommitted. |
+| 2026-11-02 | Three-gate check for the active-probing direction done (`results/phase1/active_probe/report.md`, `notes/decision_active_probe.md`): 192 units = 96 common-safe, 4 ambiguous (strict), 23 mixed, 69 infeasible; 27 broad ambiguous (< 50; ≈ 41 more objects proposed, not run). Gate 1 pass (oracle +0.296 success over B5a-c on 27 units). ρ_analytic 0.625 [−0.20, 1.00] (B5b point, probe + formula), ρ_small −0.55 (MLP, 36 training objects). Matrix row mechanically: both insufficient → π0.5 worth testing; CIs include the other rows. Uncommitted. |
 | 2026-11-02 | Phase-1 reporting frozen and tagged `phase1-final`: P2 fail, P6-frozen fail (22), P6-conditioned reported separately (all non-stochastic outside-boundary cells agree). Owner's 3-gate check for an active-probing direction started (`analysis/active_probe_gates.py`, `notes/decision_active_probe.md`); no new phase, no π0.5, no probe rollouts. |
 | 2026-11-02 | Third pass (owner items 0–7). Committed the v2 pass (2ef25ca). Label v3 applied and relabelled; `cells[]` rate tables with `stochastic` flag; full_v3 evaluation: identical verdicts, P6 22 entries → 18 stochastic + 4 known exception (0 cleared). G7/G8 on v3 pass. Coarse bound v2 (noisy lookup, 4-fold LOO, difficulty split): LOO success oracle 0.641, lookup 0.569, noisy lookup 0.506, B5a-c 0.573, B5b-c 0.556, best fixed 0.340; on the 24 groups without a common feasible cell the best coarse method stays 0.08–0.2 below the oracle. Audit sample rendered (50 branches, 0 replay mismatches). P2 decision and audit sign-off left to the owner; no freeze, no next phase. env.py got an optional per-substep `step_hook` (rendering only). Uncommitted. |
 | 2026-11-02 | Second pass on the owner's three items. (1) Label fix v2: `completed` False after a drop, damage proxies stop at the drop onset; relabelled 23 535 branches from stored records (`relabel.py`), re-executed baseline selections, re-evaluated: no verdict changes, P6 27 → 22 failing entries (18 are slip-without-drop cells). (2) Implementation B + G7/G8 cross-check: 100 % agreement, pass. (3) Coarse-cell upper bound: success 0.625 vs oracle 0.729, infeasible 0.143 vs B5a-c 0.250. Decision note updated: P2 fails as frozen, P3/P7 pass, owner decides. Earlier work committed as 3b37c63; this pass uncommitted. |
